@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<body>
+   
+<nav class="navbar" style="background-color:#2ace61a3;">
+  <div class="container-fluid d-flex align-items-center justify-content-between flex-nowrap">
+    <!-- צד שמאל - משתמש -->
+     
+    <div class="text-white d-flex align-items-center gap-2 ms-4">
+      <span>user name</span>
+      <button style="border:none; background:transparent; color:white;">
+        <i class="bi bi-person-circle fs-4"></i>
+      </button>
+    </div>
+
+    <!-- חיפוש באמצע -->
+    <form class="d-flex justify-content-center" role="search" style = "width:350px;">
+      <input class="form-control rounded-pill me-2" type="search" placeholder = "Search" aria-label="Search"/>
+      <button class="btn btn-success rounded-pill px-4" type="submit">Search</button>
+    </form>
+
+    <!-- צד ימין - לוגו + שם חנות -->
+    <div class="d-flex align-items-center gap-2 me-2">
+      <span class="navbar-brand mb-0 fw-bold fs-4 text-white">
+        חנות הירקות שלי
+      </span>
+      <img src="image/logo.png"
+           class="rounded-circle border border-white border-1"
+           style="width:50px; height:50px; object-fit:cover;">
+    </div>
+
+  </div>
+</nav>
+</body>
+</html>
