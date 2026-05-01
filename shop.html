@@ -15,844 +15,89 @@
 
 <body>
 
+
     <!-- בר ראשי -->
-    <nav class="navbar" style="background-color:rgb(0, 83, 80);">
-        <div class="container-fluid d-flex align-items-center justify-content-between flex-nowrap ms-4">
+    <div class="sticky-top">
+        <nav class="navbar" style="background-color:rgb(0, 83, 80);">
+            <div class="container-fluid d-flex align-items-center justify-content-between flex-nowrap ms-4">
 
-            <!--  משתמש -->
-            <div class="text-white d-flex align-items-center gap-2 ms-4">
-                <span>user name</span>
-                <button style="border:none; background:transparent; color:white;">
-                    <i class="bi bi-person-circle fs-4"></i>
-                </button>
-                <!-- עגלה -->
-                <button type="button" class="btn btn-success ms-5"><i class="bi bi-cart4"></i> Cart</button>
+                <!--  משתמש -->
+                <div class="text-white d-flex align-items-center gap-2 ms-4">
+                    <span>user name</span>
+                    <button style="border:none; background:transparent; color:white;">
+                        <i class="bi bi-person-circle fs-4"></i>
+                    </button>
+                    <!-- עגלה -->
+                    <button type="button" class="btn btn-success ms-5"><i class="bi bi-cart4"></i> עגלה</button>
+
+                </div>
+
+
+                <!-- חיפוש באמצע -->
+                <form class="d-flex justify-content-center ms-5" role="search" style="width:350px;">
+                    <input id="searchInput" class="form-control rounded-pill me-2" type="search" placeholder="חיפוש מוצר"
+                        aria-label="Search" />
+                    
+                </form>
+
+                <!--  - לוגו + שם חנות -->
+                <div class="d-flex align-items-center gap-2 me-5" style="position: relative; right: 20px;">
+                    <span class="navbar-brand mb-0 fw-bold fs-4 text-white">
+                        איילת השדה
+                    </span>
+                    <img src="image/logo.png" class="rounded-circle border border-white border-1"
+                        style="width:50px; height:50px; object-fit:cover;">
+                </div>
 
             </div>
+            <!--בר משנה-->
+        </nav>
+        <nav class="navbar navbar-expand-lg bg-light border-top border-bottom">
+            <div class="container justify-content-center ">
 
+                <ul class="navbar-nav flex-row gap-3">
 
-            <!-- חיפוש באמצע -->
-            <form class="d-flex justify-content-center ms-5" role="search" style="width:350px;">
-                <input class="form-control rounded-pill me-2" type="search" placeholder="חיפוש מוצר"
-                    aria-label="Search" />
-                <button class="btn btn-success rounded-pill px-4" type="submit">Search</button>
-            </form>
+                    <li class="nav-item">
+                        <a class="nav-link category-btn text-success" href="#" onclick="setNavBtn(this); filterproducts('sale')">מבצעים</a>
+                    </li>
 
-            <!--  - לוגו + שם חנות -->
-            <div class="d-flex align-items-center gap-2 me-5" style="position: relative; right: 20px;">
-                <span class="navbar-brand mb-0 fw-bold fs-4 text-white">
-                    איילת השדה
-                </span>
-                <img src="image/logo.png" class="rounded-circle border border-white border-1"
-                    style="width:50px; height:50px; object-fit:cover;">
+                    <li class="nav-item">
+                        <a class="nav-link category-btn text-success" href="#" onclick="setNavBtn(this); filterproducts('vegetables')">ירקות</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link category-btn text-success" href="#" onclick="setNavBtn(this); filterproducts('fruits')">פירות</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link category-btn active fw-bold text-success" href="#" onclick="setNavBtn(this); filterproducts('all')">כל המוצרים</a>
+                    </li>
+
+                </ul>
+
             </div>
-
-        </div>
-        <!--בר משנה-->
-    </nav>
-    <nav class="navbar navbar-expand-lg bg-light border-top border-bottom sticky-top">
-        <div class="container justify-content-center ">
-
-            <ul class="navbar-nav flex-row gap-3">
-
-                <li class="nav-item">
-                    <a class="nav-link" href="#">מבצעים</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="#">ירקות</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="#">פירות</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link active fw-bold text-success" href="#">כל המוצרים</a>
-                </li>
-
-            </ul>
-
-        </div>
-    </nav>
+        </nav>
+    </div>
 
     <main class="container mt-5" dir="rtl">
         <div class="row">
             <!--כרטיסים -->
             <div class="col-lg-9">
-                <div class="row g-4 justify-content-start">
+                <div class="row g-4 justify-content-start" id="productsContainer">
 
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/vegetables/carrot.png" class="card-img-top"
-                                alt="גזר" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">גזר</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪8 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/vegetables/cucumber.png" class="card-img-top"
-                                alt="מלפפון" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">מלפפון</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪6 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/vegetables/eggplant.png" class="card-img-top"
-                                alt="חציל" style="height:160px; object-fit:contain; padding:0px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">חציל</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪5 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/vegetables/garlic.png" class="card-img-top"
-                                alt="שום" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">שום</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪15 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/vegetables/PurpleOnion.png" class="card-img-top"
-                                alt="בצל סגול" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">בצל סגול</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪6 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/vegetables/RedPepper.png" class="card-img-top"
-                                alt="גמבה אדומה" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">גמבה אדומה</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪9 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/vegetables/sweetPotato.png" class="card-img-top"
-                                alt="בטטה" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">בטטה</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪7 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/vegetables/Tomatoes.png" class="card-img-top"
-                                alt="עגבניה" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">עגבניה</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪8 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/vegetables/whiteOnion.png" class="card-img-top"
-                                alt="בצל לבן" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">בצל לבן</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪5 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/vegetables/WhitePotato.jpg" class="card-img-top"
-                                alt="תפוח אדמה" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">תפוח אדמה</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪4 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/fruits/Apple.png" class="card-img-top"
-                                alt="תפוח" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">תפוח</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪10 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/fruits/banana.png" class="card-img-top"
-                                alt="בננה" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">בננה</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪6 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/fruits/coconut.png" class="card-img-top"
-                                alt="קוקוס" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">קוקוס</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪12 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/fruits/grapes.png" class="card-img-top"
-                                alt="ענבים" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">ענבים</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪20 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/fruits/Kiwi.jpg" class="card-img-top"
-                                alt="קיווי" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">קיווי</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪12 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/fruits/mango.png" class="card-img-top"
-                                alt="מנגו" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">מנגו</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪15 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/fruits/orange.png" class="card-img-top"
-                                alt="תפוז" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">תפוז</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪7 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/fruits/pineapple.png" class="card-img-top"
-                                alt="אננס" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">אננס</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪25 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/fruits/plum.png" class="card-img-top"
-                                alt="שזיף" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">שזיף</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪10 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
-
-                            <!-- תמונה -->
-                            <img src="image/fruits/Pomegranate.png" class="card-img-top"
-                                alt="רימון" style="height:160px; object-fit:contain; padding:15px;">
-
-                            <div class="card-body d-flex flex-column justify-content-between text-center">
-
-                                <!-- שם -->
-                                <div>
-                                    <h6 class="fw-bold mb-1">רימון</h6>
-                                    <div class="text-success fw-semibold small">
-                                        ₪12 לק״ג
-                                    </div>
-                                </div>
-
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
-                                        <i class="bi bi-dash"></i>
-                                    </button>
-
-                                    <div class="border rounded-pill px-3 py-1 small fw-semibold">
-                                        1 ק״ג
-                                    </div>
-
-                                    <button class="btn btn-success btn-sm rounded-circle">
-                                        <i class="bi bi-plus"></i>
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    
 
                 </div>
             </div>
             <!--  העגלה -->
             <div class="col-lg-3">
-                <div class="card position-sticky bg-white" style="
-         top:20px;
+                <div class="card position-sticky bg-white " style="
+         top:150px;
+         width:105%;
+
          border:2px solid rgb(0, 83, 80);
          border-radius:14px;
          box-shadow: 0 10px 25px rgba(0,0,0,0.10);
-         overflow:hidden;
+         overflow:hidden ;
        ">
 
                     <!-- כותרת + סכום -->
@@ -865,7 +110,7 @@
                         <div class="d-flex align-items-end justify-content-between mt-2">
                             <div class="text-muted small">סה״כ לתשלום</div>
                             <div class="fw-bold fs-4" style="color:rgb(0,83,80);">
-                                ₪0.00
+                                <span id=CartSum>₪0.00</span>
                             </div>
                         </div>
 
@@ -896,6 +141,58 @@
             </div>
         </div>
     </main>
+
+    <footer class="mt-5" style="background: rgb(30, 120, 100); color: white;">
+        <div class="container py-4">
+
+            <div class="row text-center text-md-end">
+
+
+                <!-- צד שמאל - יצירת קשר -->
+                <div class="col-md-4 mb-3">
+                    <p class="small mb-1">📞 03-1234567</p>
+                    <p class="small mb-1">✉️ info@ayelet.co.il</p>
+                    <p class="small mb-0">א׳–ה׳ 08:00–18:00</p>
+                </div>
+
+                <!-- אמצע - קישורים -->
+                <div class="col-md-4 mb-3">
+                    <div class="d-flex flex-column gap-1 small">
+                        <a href="#" class="text-white text-decoration-none">כל המוצרים</a>
+                        <a href="#" class="text-white text-decoration-none">מבצעים</a>
+                        <a href="#" class="text-white text-decoration-none">ירקות</a>
+                        <a href="#" class="text-white text-decoration-none">פירות</a>
+                    </div>
+                </div>
+
+
+
+                <!-- צד ימין - לוגו + שם -->
+                <div
+                    class="col-md-4 mb-3 d-flex align-items-center justify-content-md-end justify-content-center gap-2">
+
+                    <span class="fw-bold fs-5">
+                        איילת השדה
+                    </span>
+
+                    <img src="image/logo.png" style="width:90px; height:90px; object-fit:cover;"
+                        class="rounded-circle border border-white">
+                </div>
+
+            </div>
+
+            <hr class="border-light my-3">
+
+            <div class="text-center small">
+                © 2026 איילת השדה
+            </div>
+
+        </div>
+    </footer>
+    <script src="JS/data.js"></script>
+    <script src="JS/shop.js"></script>
+
+
 </body>
 
 </html>
