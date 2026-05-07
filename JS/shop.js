@@ -29,7 +29,7 @@ function renderProducts(productsToShow) {
                                 <!-- בחירת משקל -->
                                 <div class="d-flex justify-content-center align-items-center gap-2">
 
-                                    <button class="btn btn-outline-success btn-sm rounded-circle">
+                                    <button onclick="removeFromCart(${product.id})" class="btn btn-outline-success btn-sm rounded-circle">
                                         <i class="bi bi-dash"></i>
                                     </button>
 
@@ -37,7 +37,7 @@ function renderProducts(productsToShow) {
                                         הוסף לסל
                                     </div>
 
-                                    <button class="btn btn-success btn-sm rounded-circle">
+                                    <button onclick="addToCart(${product.id})" class="btn btn-success btn-sm rounded-circle">
                                         <i class="bi bi-plus"></i>
                                     </button>
 
@@ -67,9 +67,10 @@ function filterproducts(category)
 /*קריאה לפונק' להדפסה*/
 document.addEventListener("DOMContentLoaded", function () {
   renderProducts(products);
+  renderCart();
 });
 
-/*הדגשת כפתורי הנאב*/
+/*הדגשת כפתורי הנאב בלחיצה*/
 function setNavBtn(active){
 const buttons = document.querySelectorAll(".category-btn");
 

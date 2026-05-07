@@ -27,17 +27,17 @@
                     <button style="border:none; background:transparent; color:white;">
                         <i class="bi bi-person-circle fs-4"></i>
                     </button>
-                    <!-- עגלה -->
+                    <!-- מעבר לעגלה-->
                     <button type="button" class="btn btn-success ms-5"><i class="bi bi-cart4"></i> עגלה</button>
 
                 </div>
 
 
                 <!-- חיפוש באמצע -->
-                <form class="d-flex justify-content-center ms-5" role="search" style="width:350px;">
-                    <input id="searchInput" class="form-control rounded-pill me-2" type="search" placeholder="חיפוש מוצר"
-                        aria-label="Search" />
-                    
+                <form class="d-flex justify-content-center ms-5" role="search" style="width:350px;" dir="rtl">
+                    <input id="searchInput" class="form-control rounded-pill me-2" type="search"
+                        placeholder="חיפוש מוצר" aria-label="Search" />
+
                 </form>
 
                 <!--  - לוגו + שם חנות -->
@@ -58,19 +58,23 @@
                 <ul class="navbar-nav flex-row gap-3">
 
                     <li class="nav-item">
-                        <a class="nav-link category-btn text-success" href="#" onclick="setNavBtn(this); filterproducts('sale')">מבצעים</a>
+                        <a class="nav-link category-btn text-success" href="#"
+                            onclick="setNavBtn(this); filterproducts('sale')">מבצעים</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link category-btn text-success" href="#" onclick="setNavBtn(this); filterproducts('vegetables')">ירקות</a>
+                        <a class="nav-link category-btn text-success" href="#"
+                            onclick="setNavBtn(this); filterproducts('vegetables')">ירקות</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link category-btn text-success" href="#" onclick="setNavBtn(this); filterproducts('fruits')">פירות</a>
+                        <a class="nav-link category-btn text-success" href="#"
+                            onclick="setNavBtn(this); filterproducts('fruits')">פירות</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link category-btn active fw-bold text-success" href="#" onclick="setNavBtn(this); filterproducts('all')">כל המוצרים</a>
+                        <a class="nav-link category-btn active fw-bold text-success" href="#"
+                            onclick="setNavBtn(this); filterproducts('all')">כל המוצרים</a>
                     </li>
 
                 </ul>
@@ -89,16 +93,34 @@
                 </div>
             </div>
             <!--  העגלה -->
-            <div class="col-lg-3">
-                <div class="card position-sticky bg-white " style="
-         top:150px;
-         width:105%;
+            <style>
+                /* עיצוב פס הגלילה של העגלה (דק וירוק) */
+                #cartItems::-webkit-scrollbar {
+                    width: 5px;
+                }
 
-         border:2px solid rgb(0, 83, 80);
-         border-radius:14px;
-         box-shadow: 0 10px 25px rgba(0,0,0,0.10);
-         overflow:hidden ;
-       ">
+                #cartItems::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+
+                #cartItems::-webkit-scrollbar-thumb {
+                    background-color: rgba(0, 83, 80, 0.3);
+                    border-radius: 10px;
+                }
+
+                #cartItems::-webkit-scrollbar-thumb:hover {
+                    background-color: rgba(0, 83, 80, 0.6);
+                }
+            </style>
+            <div class="col-lg-3">
+                <div class="card position-sticky bg-white" style="
+        top:150px;
+        width:105%;
+        border:2px solid rgb(0, 83, 80);
+        border-radius:14px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.10);
+        overflow:hidden ;
+    ">
 
                     <!-- כותרת + סכום -->
                     <div class="p-3" style="border-bottom:1px solid rgba(0,0,0,0.06);">
@@ -108,9 +130,10 @@
                         </div>
 
                         <div class="d-flex align-items-end justify-content-between mt-2">
-                            <div class="text-muted small">סה״כ לתשלום</div>
-                            <div class="fw-bold fs-4" style="color:rgb(0,83,80);">
-                                <span id=CartSum>₪0.00</span>
+                            <!-- עדכון: הכיתוב "סה״כ לתשלום" צבוע באותו ירוק -->
+                            <div class=" fw-bold fs-6" style="color:rgb(0,83,80);">סה״כ לתשלום</div>
+                            <div class="fw-bold fs-5" style="color:rgb(0,83,80);">
+                                <span id="cartSum">₪0.00</span>
                             </div>
                         </div>
 
@@ -118,17 +141,10 @@
 
                     <div class="card-body p-4 d-flex flex-column" style="min-height:380px;">
 
-                        <!-- מצב ריק -->
-                        <div class="flex-grow-1 d-flex align-items-center justify-content-center">
-                            <div class="text-center">
-                                <i class="bi bi-cart-x" style="font-size:48px; color:rgb(0,83,80);"></i>
-                                <div class="fw-semibold mt-2">
-                                    סל הקניות שלכם ריק
-                                </div>
-                                <div class="text-muted small">
-                                    התחילו להוסיף מוצרים
-                                </div>
-                            </div>
+                        <!-- מצב ריק / מקום להדפסת הפריטים -->
+                        <div id="cartItems" class="flex-grow-1"
+                            style="max-height: 350px; overflow-y: auto; overflow-x: hidden;">
+                            <!-- כאן יודפסו שורות המוצרים ששדרגנו -->
                         </div>
 
                         <!-- כפתור -->
@@ -147,14 +163,6 @@
 
             <div class="row text-center text-md-end">
 
-
-                <!-- צד שמאל - יצירת קשר -->
-                <div class="col-md-4 mb-3">
-                    <p class="small mb-1">📞 03-1234567</p>
-                    <p class="small mb-1">✉️ info@ayelet.co.il</p>
-                    <p class="small mb-0">א׳–ה׳ 08:00–18:00</p>
-                </div>
-
                 <!-- אמצע - קישורים -->
                 <div class="col-md-4 mb-3">
                     <div class="d-flex flex-column gap-1 small">
@@ -165,7 +173,15 @@
                     </div>
                 </div>
 
-
+                <!-- צד שמאל - יצירת קשר -->
+                <div class="col-md-4 mb-3">
+                    <div class="d-flex flex-column gap-2">
+                        <p class="small mb-0">📍 משק 46, ברכיה</p>
+                        <p class="small mb-0">📞 055-2652245</p>
+                        <p class="small mb-0">✉️ info@ayelet.co.il</p>
+                        <p class="small mb-0">🕒 א׳–ה׳ 09:00–20:00 | ו׳ 09:00–15:00</p>
+                    </div>
+                </div>
 
                 <!-- צד ימין - לוגו + שם -->
                 <div
@@ -190,6 +206,7 @@
         </div>
     </footer>
     <script src="JS/data.js"></script>
+    <script src="JS/storage.js"></script>
     <script src="JS/shop.js"></script>
 
 
