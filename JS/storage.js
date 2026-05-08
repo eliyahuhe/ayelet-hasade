@@ -4,12 +4,13 @@
 function renderCart() {
     let cart = getCart();
     let container = document.getElementById("cartItems");
-    let total =0;
-        
+    let total = 0;
+
 
     container.innerHTML = "";
 
     if (cart.length === 0) {
+        
         container.innerHTML = ` <div id="emptyCart" class="d-flex align-items-center justify-content-center h-100">
                                 <div class="text-center">
                                     <i class="bi bi-cart-x" style="font-size:48px; color:rgb(0,83,80);"></i>
@@ -20,15 +21,17 @@ function renderCart() {
                                         התחילו להוסיף מוצרים
                                     </div>
                                 </div>
-                            </div>`
-                            return
+                            </div>`;
+
+                        document.getElementById("cartSum").textContent = "₪" + total.toFixed(2);     
+        return
     }
 
     cart.forEach(item => {
         let product = products.find(p => p.id === item.id);
         if (!product) return;
-        total+=item.quantity*product.price;
-        container.innerHTML +=`<div class="d-flex align-items-center border-bottom py-3 position-relative" style="padding-left: 35px;">
+        total += item.quantity * product.price;
+        container.innerHTML += `<div class="d-flex align-items-center border-bottom py-3 position-relative" style="padding-left: 35px;">
     
     <!-- כפתור מחיקה (פח אשפה) -->
    <button class="btn p-0 text-danger position-absolute"
@@ -69,7 +72,7 @@ function renderCart() {
 
 </div>`
     });
-document.getElementById("cartSum").textContent="₪"+total.toFixed(2);
+    document.getElementById("cartSum").textContent = "₪" + total.toFixed(2);
 }
 
 
@@ -102,7 +105,7 @@ function addToCart(id) {
     }
 
     if (product && product.quantity + 0.5 <= stock) {
-        product.quantity+=0.5;
+        product.quantity += 0.5;
     }
 
     saveCart(cart);
@@ -118,7 +121,7 @@ function removeFromCart(id) {
     if (!product) return;
 
     if (product.quantity > 0.5) {
-        product.quantity-=0.5;
+        product.quantity -= 0.5;
     }
     else {
         cart = cart.filter(p => p.id !== id)
@@ -127,11 +130,11 @@ function removeFromCart(id) {
     renderCart();
 }
 
-function deleteProduct(id){
-let cart = getCart();
+function deleteProduct(id) {
+    let cart = getCart();
 
-cart = cart.filter(p=> p.id !== id)
-saveCart(cart);
+    cart = cart.filter(p => p.id !== id)
+    saveCart(cart);
     renderCart();
 
 }

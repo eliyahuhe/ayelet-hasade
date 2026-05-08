@@ -1,20 +1,19 @@
 
+let user = localStorage.getItem("currentUser") || "אורח";
 
+document.getElementById("userName").textContent = "שלום, " + user;
 
-/*פונק' להדפסת הכרטיסים */
+/* פונק' להדפסת הכרטיסים */
 function renderProducts(productsToShow) {
     const container = document.getElementById("productsContainer");
     container.innerHTML = "";
     productsToShow.forEach(product => {
         container.innerHTML += `
-
-  
                     <div class="col-auto">
-                        <div class="card shadow-sm" style="width:208px; height:301px;">
+                        <div class="card shadow-sm product-card">
 
                             <!-- תמונה -->
-                            <img src="${product.image}" class="card-img-top" alt="רימון"
-                                style="height:160px; object-fit:contain; padding:15px;">
+                            <img src="${product.image}" class="card-img-top product-img" alt="${product.name}">
 
                             <div class="card-body d-flex flex-column justify-content-between text-center">
 
@@ -46,52 +45,44 @@ function renderProducts(productsToShow) {
                             </div>
                         </div>
                     </div>
-`;
+        `;
     });
-
-    
 }
 
-function filterproducts(category)
-{
-    if(category==="all")
+function filterproducts(category) {
+    if (category === "all") {
         renderProducts(products);
-    else{
-    const filtered = products.filter(product => product.category === category);
- renderProducts(filtered);
+    } else {
+        const filtered = products.filter(product => product.category === category);
+        renderProducts(filtered);
     }
-
-  
 }
 
-/*קריאה לפונק' להדפסה*/
+/* קריאה לפונק' להדפסה */
 document.addEventListener("DOMContentLoaded", function () {
-  renderProducts(products);
-  renderCart();
+    renderProducts(products);
+    renderCart();
 });
 
-/*הדגשת כפתורי הנאב בלחיצה*/
-function setNavBtn(active){
-const buttons = document.querySelectorAll(".category-btn");
+/* הדגשת כפתורי הנאב בלחיצה */
+function setNavBtn(active) {
+    const buttons = document.querySelectorAll(".category-btn");
+    
+   
+    buttons.forEach(btn => { btn.classList.remove("active", "fw-bold", "text-success") });
 
-buttons.forEach(btn => {btn.classList.remove("active","fw-bold","text-sucsses")})
-
-active.classList.add("active","fw-bold","text-success")
+    active.classList.add("active", "fw-bold", "text-success");
 }
 
+/* פונקצית חיפוש */
+const input = document.getElementById("searchInput");
+input.addEventListener("input", function () {
+    const value = this.value.toLowerCase();
 
-
-/*פונקצית חיפוש */
-const input=document.getElementById("searchInput")
-input.addEventListener("input",function (){
-const value = this.value.toLowerCase();
-
-if(value==="")
-{
-    renderProducts(products)
-}
-else{
-    const arrSearch = products.filter(product=> product.name.toLowerCase().includes(value))
-    renderProducts(arrSearch)
-}
-})
+    if (value === "") {
+        renderProducts(products);
+    } else {
+        const arrSearch = products.filter(product => product.name.toLowerCase().includes(value));
+        renderProducts(arrSearch);
+    }
+});

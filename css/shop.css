@@ -1,0 +1,116 @@
+/* --- Navbar & Header --- */
+.navbar-main {
+    background-color: rgb(0, 83, 80);
+}
+
+.user-btn {
+    border: none;
+    background: transparent;
+    color: white;
+}
+
+.search-form {
+    width: 350px;
+}
+
+.logo-container {
+    position: relative;
+    right: 20px;
+}
+
+.logo-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+}
+
+
+/* --- Cart --- */
+.cart-card {
+    top: 150px;
+    width: 105%;
+    border: 2px solid rgb(0, 83, 80);
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
+    overflow: hidden;
+}
+
+.cart-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.text-primary-custom {
+    color: rgb(0, 83, 80);
+}
+
+.cart-body {
+    min-height: 380px;
+}
+
+.cart-items-container {
+    max-height: 350px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.btn-checkout {
+    background: rgb(0, 83, 80);
+    color: #fff;
+}
+
+/* עיצוב פס הגלילה של העגלה (דק וירוק) */
+#cartItems::-webkit-scrollbar {
+    width: 5px;
+}
+
+#cartItems::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#cartItems::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 83, 80, 0.3);
+    border-radius: 10px;
+}
+
+#cartItems::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 83, 80, 0.6);
+}
+
+
+/* --- Footer --- */
+.footer-main {
+    background: rgb(30, 120, 100);
+    color: white;
+}
+
+.footer-links-col {
+    transform: translateX(-100px);
+}
+
+.footer-contact-col {
+    transform: translateX(-160px);
+}
+
+.text-accent {
+    color: #00e676;
+}
+
+.footer-logo-img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+}
+
+
+
+/* --- כרטיסי מוצרים --- */
+.product-card {
+    width: 208px;
+    height: 301px;
+}
+
+.product-img {
+    height: 160px;
+    object-fit: contain;
+    padding: 15px;
+}
