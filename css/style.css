@@ -75,3 +75,5 @@ button {
 
 .access-menu button { background: rgba(255,255,255,0.1); color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-size: 15px; }
 .grayscale { filter: grayscale(100%); }
+
+

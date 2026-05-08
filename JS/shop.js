@@ -67,8 +67,8 @@ document.addEventListener("DOMContentLoaded", function () {
 /* הדגשת כפתורי הנאב בלחיצה */
 function setNavBtn(active) {
     const buttons = document.querySelectorAll(".category-btn");
-    
-   
+
+
     buttons.forEach(btn => { btn.classList.remove("active", "fw-bold", "text-success") });
 
     active.classList.add("active", "fw-bold", "text-success");
@@ -86,3 +86,8 @@ input.addEventListener("input", function () {
         renderProducts(arrSearch);
     }
 });
+
+function moveToCheckout() {
+    console.log("clicked checkout");
+    window.location.href = "checkout.html";
+}
