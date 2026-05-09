@@ -10,7 +10,7 @@ function renderCart() {
     container.innerHTML = "";
 
     if (cart.length === 0) {
-        
+
         container.innerHTML = ` <div id="emptyCart" class="d-flex align-items-center justify-content-center h-100">
                                 <div class="text-center">
                                     <i class="bi bi-cart-x" style="font-size:48px; color:rgb(0,83,80);"></i>
@@ -23,7 +23,7 @@ function renderCart() {
                                 </div>
                             </div>`;
 
-                        document.getElementById("cartSum").textContent = "₪" + total.toFixed(2);     
+        document.getElementById("cartSum").textContent = "₪" + total.toFixed(2);
         return
     }
 
@@ -106,7 +106,12 @@ function addToCart(id) {
 
     if (product && product.quantity + 0.5 <= stock) {
         product.quantity += 0.5;
+
     }
+    if ((product && product.quantity + 0.5 > stock) || (!product && stock <= 0)) {
+        alert("המוצר לא זמין יותר ממה שנבחר");
+    }
+
 
     saveCart(cart);
     renderCart();

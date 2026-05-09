@@ -1,141 +1,18 @@
-
-
-
-// // שם העגלה בדפדפן
-// const CART_KEY = "products";
-
-// // מציג מחיר עם ₪
-// function formatPrice(price) {
-//   return "₪" + price;
-// }
-
-// // מביא את העגלה מהדפדפן
-// function getCart() {
-//   let cart = localStorage.getItem(CART_KEY);
-
-//   if (!cart) return [];
-
-//   return JSON.parse(cart);
-// }
-
-// // מחשב סכום כולל
-// function getTotal(cart) {
-//   let total = 0;
-
-//   cart.forEach(item => {
-//     total += item.price * item.qty;
-//   });
-
-//   return total;
-// }
-
-// // מציג את המוצרים בעמוד
-// function showCart() {
-//   let cart = getCart();
-
-//   let body = document.getElementById("cartBody");
-//   let totalBox = document.getElementById("grandTotal");
-//   let empty = document.getElementById("emptyCart");
-//   let btn = document.getElementById("submitBtn");
-
-//   body.innerHTML = "";
-
-//   if (cart.length === 0) {
-//     empty.classList.remove("d-none");
-//     btn.disabled = true;
-//     totalBox.innerText = "₪0";
-//     return;
-//   }
-
-//   empty.classList.add("d-none");
-//   btn.disabled = false;
-
-//   let total = 0;
-
-//   cart.forEach(item => {
-//     let product = products.find(p => p.id === item.id);
-//     if (!product) return;
-
-//     let row = document.createElement("tr");
-
-//     let sum = product.price * item.quantity;
-//     total += sum;
-
-//     row.innerHTML = `
-//       <td>${product.name}</td>
-//       <td>${item.quantity} ק''ג </td>
-//       <td>${formatPrice(product.price)}</td>
-//       <td>${formatPrice(sum)}</td>
-//     `;
-
-//     body.appendChild(row);
-//   });
-
-//   totalBox.innerText = formatPrice(total);
-// }
-
-// // כשלוחצים אישור הזמנה
-// document.getElementById("submitBtn").addEventListener("click", function() {
-
-//   let cart = getCart();
-
-//   if (cart.length === 0) return;
-
-//   let orderId = "ORD-" + Date.now();
-
-//   let order = {
-//     id: orderId,
-//     items: cart,
-//     total: getTotal(cart)
-//   };
-
-//   // שומר הזמנה
-//   localStorage.setItem("lastOrder", JSON.stringify(order));
-
-//   // מוחק עגלה
-//   localStorage.removeItem(CART_KEY);
-
-//   // טקסט להודעת פופאפ
-//   document.getElementById("popupText").innerText =
-//     "תודה רבה שקנית אצלנו 🙏\n" +
-//     "צוות איילת השדה מטפל לך בהזמנה\n" +
-//     "מספר הזמנה: " + orderId;
-
-//   // מציג בהודעת פופאפ
-//   document.getElementById("popup").classList.remove("d-none");
-
-//   showCart();
-// });
-
-// // סוגר לנו  פופאפ
-// function closePopup() {
-//   document.getElementById("popup").classList.add("d-none");
-// }
-
-// // הפעלה ראשונית
-// showCart();
-
-
-// השם שבו העגלה שמורה ב-localStorage
+// =====================
+// CONFIG
+// =====================
 const CART_KEY = "products";
 
-// הצגת מחיר בפורמט יפה
+// =====================
+// FORMAT מחיר
+// =====================
 function formatPrice(price) {
   return "₪" + Number(price).toFixed(2);
 }
 
-// הבאת העגלה מה-localStorage
-function getCart() {
-  let cart = localStorage.getItem(CART_KEY);
-  return cart ? JSON.parse(cart) : [];
-}
-
-// שמירת העגלה ל-localStorage
-function saveCart(cart) {
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
-}
-
-// חישוב סכום כולל לפי העגלה והמוצרים המקוריים
+// =====================
+// חישוב סכום כולל
+// =====================
 function getTotal(cart) {
   let total = 0;
 
@@ -149,9 +26,11 @@ function getTotal(cart) {
   return total;
 }
 
-// הצגת המוצרים בטבלת הסיכום
+// =====================
+// הצגת עגלה
+// =====================
 function showCart() {
-  let cart = getCart();
+  let cart = getCart(); // מגיע מ-storage.js
 
   let body = document.getElementById("cartBody");
   let totalBox = document.getElementById("grandTotal");
@@ -160,7 +39,6 @@ function showCart() {
 
   body.innerHTML = "";
 
-  // אם העגלה ריקה
   if (cart.length === 0) {
     empty.classList.remove("d-none");
     btn.disabled = true;
@@ -171,19 +49,31 @@ function showCart() {
   empty.classList.add("d-none");
   btn.disabled = false;
 
-  // הדפסת כל מוצר בטבלה
   cart.forEach(item => {
     let product = products.find(p => p.id === item.id);
     if (!product) return;
 
     let sum = product.price * item.quantity;
+
     let row = document.createElement("tr");
 
     row.innerHTML = `
-      <td>${product.name}</td>
+      <td></td>
+
+      <td>
+        <div class="product-cell">
+          <img
+            src="/image/cart/${product.name}.JPG"
+            onerror="this.src='https://via.placeholder.com/50'"
+            class="rounded-circle product-img"
+          >
+          <span>${product.name}</span>
+        </div>
+      </td>
 
       <td>
         <div class="qty-box">
+          <!-- משתמש בפונקציות מ-storage.js -->
           <button onclick="removeFromCart(${item.id})">−</button>
           <span>${item.quantity} ק״ג</span>
           <button onclick="addToCart(${item.id})">+</button>
@@ -194,6 +84,7 @@ function showCart() {
       <td>${formatPrice(sum)}</td>
 
       <td>
+        <!-- גם מחיקה מגיעה מ-storage.js -->
         <button class="delete-btn" onclick="deleteProduct(${item.id})">
           <i class="bi bi-trash"></i>
         </button>
@@ -203,61 +94,16 @@ function showCart() {
     body.appendChild(row);
   });
 
-  // עדכון סכום סופי
   totalBox.innerText = formatPrice(getTotal(cart));
 }
 
-// הוספת כמות למוצר
-function addToCart(id) {
-  let cart = getCart();
+// =====================
+// כתובת משלוח
+// =====================
+window.toggleAddress = function () {
+  let selected =
+    document.querySelector('input[name="deliveryType"]:checked').value;
 
-  let item = cart.find(p => p.id === id);
-  let product = products.find(p => p.id === id);
-
-  if (!item || !product) return;
-
-  // לא לעבור את המלאי
-  if (item.quantity + 0.5 <= product.stock) {
-    item.quantity += 0.5;
-  }
-
-  saveCart(cart);
-  showCart();
-}
-
-// הורדת כמות מהמוצר
-function removeFromCart(id) {
-  let cart = getCart();
-
-  let item = cart.find(p => p.id === id);
-  if (!item) return;
-
-  // אם יש יותר מחצי קילו — מורידים חצי
-  if (item.quantity > 0.5) {
-    item.quantity -= 0.5;
-  } 
-  // אם נשאר חצי — מוחקים את המוצר מהעגלה
-  else {
-    cart = cart.filter(p => p.id !== id);
-  }
-
-  saveCart(cart);
-  showCart();
-}
-
-// מחיקת מוצר מהעגלה
-function deleteProduct(id) {
-  let cart = getCart();
-
-  cart = cart.filter(p => p.id !== id);
-
-  saveCart(cart);
-  showCart();
-}
-
-// הצגת / הסתרת שדה כתובת לפי בחירת משלוח
-function toggleAddress() {
-  let selected = document.querySelector('input[name="deliveryType"]:checked').value;
   let addressBox = document.getElementById("addressBox");
   let addressInput = document.getElementById("deliveryAddress");
 
@@ -269,43 +115,105 @@ function toggleAddress() {
     addressInput.required = false;
     addressInput.value = "";
   }
+};
+
+// =====================
+// STATE להזמנה
+// =====================
+window.tempOrder = null;
+
+// =====================
+// ולידציה ת"ז (9 ספרות בלבד)
+// =====================
+function isValidID(id) {
+  return /^\d{9}$/.test(id);
 }
 
+// =====================
 // אישור הזמנה
-document.getElementById("submitBtn").addEventListener("click", function () {
-  let cart = getCart();
+// =====================
+document.getElementById("submitBtn").addEventListener("click", function (e) {
+  e.preventDefault();
 
+  let cart = getCart();
   if (cart.length === 0) return;
 
-  let deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
-  let address = document.getElementById("deliveryAddress").value.trim();
+  let deliveryType =
+    document.querySelector('input[name="deliveryType"]:checked').value;
 
-  // אם נבחר משלוח ואין כתובת
+  let address =
+    document.getElementById("deliveryAddress").value.trim();
+
   if (deliveryType === "delivery" && address === "") {
     alert("נא להזין כתובת למשלוח");
     return;
   }
 
+  window.tempOrder = { cart, deliveryType, address };
+
+  openPaymentPopup();
+});
+
+// =====================
+// POPUPS
+// =====================
+window.openPaymentPopup = function () {
+  document.getElementById("paymentPopup").classList.remove("d-none");
+};
+
+window.closePaymentPopup = function () {
+  document.getElementById("paymentPopup").classList.add("d-none");
+};
+
+window.closePopup = function () {
+  document.getElementById("popup").classList.add("d-none");
+  window.location.href = "login.html";
+
+};
+
+// =====================
+// תשלום (עם validation כמו בתמונה)
+// =====================
+document.getElementById("paymentForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  // מציג שגיאות שדות חובה (בלי alert)
+  if (!this.reportValidity()) return;
+
+  let tz = document.getElementById("cardTz").value.trim();
+
+  if (!isValidID(tz)) {
+    document.getElementById("cardTz").setCustomValidity("יש להזין 9 ספרות");
+    document.getElementById("cardTz").reportValidity();
+    return;
+  }
+
+  document.getElementById("cardTz").setCustomValidity("");
+
+  let data = window.tempOrder;
+  if (!data) return;
+
   let orderId = "ORD-" + Date.now();
 
   let order = {
     id: orderId,
-    items: cart,
-    deliveryType: deliveryType,
-    address: deliveryType === "delivery" ? address : "",
-    total: getTotal(cart)
+    items: data.cart,
+    deliveryType: data.deliveryType,
+    address: data.address,
+    total: getTotal(data.cart)
   };
 
-  // שמירת הזמנה אחרונה
   localStorage.setItem("lastOrder", JSON.stringify(order));
 
-  // מחיקת העגלה אחרי אישור
+  // ריקון עגלה בלבד
   localStorage.removeItem(CART_KEY);
 
-  // הודעת אישור
+  closePaymentPopup();
+
   document.getElementById("popupText").innerText =
-    "תודה רבה שקנית אצלנו 🙏\n" +
-    "צוות איילת השדה מטפל בהזמנה שלך\n" +
+    "תודה שקנית אצלנו 🙏\n" +
+    "ההזמנה שלך התקבלה בהצלחה ותטופל בהקדם\n" +
+    "צוות איילת השדה כאן בשבילך תמיד 💚\n" +
     "מספר הזמנה: " + orderId;
 
   document.getElementById("popup").classList.remove("d-none");
@@ -313,10 +221,14 @@ document.getElementById("submitBtn").addEventListener("click", function () {
   showCart();
 });
 
-// סגירת הפופאפ
-function closePopup() {
-  document.getElementById("popup").classList.add("d-none");
-}
+// =====================
+// 🔥 חיבור חשוב ל-storage.js
+// =====================
+// גורם לכך שכל שינוי בעגלה (פלוס/מינוס/מחיקה)
+// יעדכן את הטבלה בעמוד הזה
+window.renderCart = showCart;
 
-// הפעלה ראשונית כשנכנסים לעמוד
+// =====================
+// INIT
+// =====================
 showCart();
