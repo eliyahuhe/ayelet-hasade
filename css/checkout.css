@@ -1,7 +1,7 @@
 
 
 /* רקע כללי יפה */
-body {
+/* body {
     min-height: 100vh;
     font-family: Arial;
     background:
@@ -92,4 +92,205 @@ body {
     padding: 10px 20px;
     border-radius: 10px;
     cursor: pointer;
-  }
+  } 
+
+    /**/
+    
+    /* רקע כללי */
+body {
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top right, rgba(0, 83, 80, 0.18), transparent 35%),
+    linear-gradient(135deg, #f7fbf8, #eaf4ef);
+}
+
+/* הכרטיס המרכזי */
+.checkout-card {
+  max-width: 950px;
+  margin: auto;
+  background: white;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+}
+
+/* כותרת */
+.checkout-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.checkout-header h3 {
+  color: rgb(0, 83, 80);
+  font-weight: 800;
+}
+
+.checkout-header p {
+  color: #666;
+  margin: 0;
+}
+
+/* טבלה */
+.checkout-table {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.checkout-table th {
+  background: rgb(0, 83, 80);
+  color: white;
+  text-align: center;
+  padding: 14px;
+}
+
+.checkout-table td {
+  text-align: center;
+  vertical-align: middle;
+  padding: 14px;
+}
+
+/* כפתורי כמות */
+.qty-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #f4f7f5;
+  border: 1px solid #d9e5df;
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.qty-box button {
+  border: none;
+  background: rgb(0, 83, 80);
+  color: white;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+.qty-box span {
+  min-width: 60px;
+  font-weight: 700;
+}
+
+/* כפתור מחיקה */
+.delete-btn {
+  border: none;
+  background: #fff1f1;
+  color: #dc3545;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+}
+
+.delete-btn:hover {
+  background: #dc3545;
+  color: white;
+}
+
+/* אזור בחירת משלוח */
+.delivery-box {
+  background: #f8fbf9;
+  border: 1px solid #dce8e2;
+  border-radius: 16px;
+  padding: 18px;
+  margin-top: 24px;
+}
+
+.delivery-box h5 {
+  color: rgb(0, 83, 80);
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+/* אפשרויות איסוף / משלוח */
+.delivery-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 24px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.delivery-option i {
+  color: rgb(0, 83, 80);
+}
+
+/* שדה כתובת */
+.address-box {
+  margin-top: 18px;
+}
+
+/* אזור סכום סופי */
+.total-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #e5e5e5;
+  margin-top: 24px;
+  padding-top: 18px;
+  font-size: 18px;
+}
+
+#grandTotal {
+  color: rgb(0, 83, 80);
+  font-size: 26px;
+}
+
+/* כפתור אישור */
+.btn-submit {
+  width: 100%;
+  margin-top: 24px;
+  border: none;
+  border-radius: 14px;
+  padding: 13px;
+  background: rgb(0, 83, 80);
+  color: white;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.btn-submit:hover {
+  background: rgb(0, 105, 100);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+}
+
+/* פופאפ */
+.popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* קופסת פופאפ */
+.popup-box {
+  background: white;
+  padding: 32px;
+  border-radius: 22px;
+  text-align: center;
+  width: 340px;
+}
+
+.popup-box h3 {
+  color: rgb(0, 83, 80);
+  font-weight: 800;
+}
+
+/* כפתור בפופאפ */
+.popup-box button {
+  background: rgb(0, 83, 80);
+  color: white;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 12px;
+}

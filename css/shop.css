@@ -24,7 +24,9 @@
     object-fit: cover;
 }
 
-
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf3 100%);
+}
 /* --- Cart --- */
 .cart-card {
     top: 150px;
@@ -107,6 +109,10 @@
 .product-card {
     width: 208px;
     height: 301px;
+    /* border: 2px solid #005350;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2); */
+
+    
 }
 
 .product-img {
@@ -114,3 +120,14 @@
     object-fit: contain;
     padding: 15px;
 }
+
+/* 
+body {
+    background-image: url('../image/fields-bg.JPG.jpeg'); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: 'Assistant', sans-serif;
+     
+} */

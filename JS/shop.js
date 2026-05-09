@@ -88,6 +88,12 @@ input.addEventListener("input", function () {
 });
 
 function moveToCheckout() {
-    console.log("clicked checkout");
+    let cart = JSON.parse(localStorage.getItem("products")) || [];
+
+    if (cart.length === 0) {
+        alert("העגלה ריקה, יש להוסיף מוצרים לפני מעבר לתשלום");
+        return;
+    }
+
     window.location.href = "checkout.html";
 }

@@ -1,52 +1,64 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>איילת השדה - כניסה</title>
+    <link rel="icon" href="/image/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
-<!-- שעה וטמפ' -->
-<div class="top-nav">
-    <div class="status-bar">
-        <span id="current-time">00:00</span>
-        <span class="divider">|</span>
-        <span id="weather-info">☀️ טוען...</span>
+    <!-- שעה וטמפ' -->
+    <div class="top-nav">
+        <div class="status-bar">
+            <span id="current-time">00:00</span>
+            <span class="divider">|</span>
+            <span id="weather-info">☀️ טוען...</span>
+        </div>
     </div>
-</div>
 
-<!-- נגישות -->
-<div class="accessibility-wrapper">
-    <div class="accessibility-fab" onclick="toggleAccessibilityMenu()" title="תפריט נגישות">
-        <i class="bi bi-person-wheelchair"></i>
+    <!-- נגישות -->
+    <div class="accessibility-wrapper">
+        <div class="accessibility-fab" onclick="toggleAccessibilityMenu()" title="תפריט נגישות">
+            <i class="bi bi-person-wheelchair"></i>
+        </div>
+        <div id="access-menu" class="access-menu">
+            <h3 id="acc-title">נגישות</h3>
+            <button onclick="changeFontSize(1)">א (+) הגדל</button>
+            <button onclick="changeFontSize(-1)">א (-) הקטן</button>
+            <button onclick="toggleGrayscale()">שחור לבן</button>
+            <button onclick="resetAccess()">איפוס</button>
+        </div>
     </div>
-    <div id="access-menu" class="access-menu">
-        <h3 id="acc-title">נגישות</h3>
-        <button onclick="changeFontSize(1)">א (+) הגדל</button>
-        <button onclick="changeFontSize(-1)">א (-) הקטן</button>
-        <button onclick="toggleGrayscale()">שחור לבן</button>
-        <button onclick="resetAccess()">איפוס</button>
-    </div>
-</div>
 
-<div class="login-container">
-    <div class="login-card">
-        <img src="/image/logo.png" alt="איילת השדה" class="logo">
-        <h2>ברוכים הבאים!</h2>
-        <div class="input-group">
-            <input type="text" id="username" placeholder="הכנס שם משתמש..." autocomplete="off">
-            <div class="pass-group">
-                <input type="password" id="password" placeholder="הכנס סיסמה..." autocomplete="off">
-                <i class="bi bi-eye-slash" id="togglePassword" onclick="togglePass()"></i>
+    <form onsubmit="login(event)">
+        <div class="login-container">
+            <div class="login-card">
+
+                <img src="/image/logo.png" alt="איילת השדה" class="logo">
+                <h2>ברוכים הבאים!</h2>
+
+                <div class="input-group">
+                    <input type="text" id="username" placeholder="הכנס שם משתמש..." autocomplete="off" required pattern="[A-Za-zא-ת ]+"
+    title="יש להזין אותיות בלבד">
+
+                    <!-- <div class="pass-group">
+                        <input type="password" id="password" placeholder="הכנס סיסמה..." autocomplete="off" required>
+                        <i class="bi bi-eye-slash" id="togglePassword" onclick="togglePass()"></i>
+                    </div> -->
+                </div>
+
+                <button type="submit" id="login-btn">כניסה</button>
+
             </div>
         </div>
-        <button onclick="login()" id="login-btn">כניסה</button>
-    </div>
-</div>
+    </form>
 
-<script src="../js/login.js"></script>
+    <script src="../js/login.js"></script>
 </body>
+
 </html>

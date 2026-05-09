@@ -1,26 +1,24 @@
 let currentZoom = 1;
 
-function togglePass() {
-    const p = document.getElementById('password');
-    const i = document.getElementById('togglePassword');
-    if (p.type === 'password') {
-        p.type = 'text';
-        i.classList.replace('bi-eye-slash', 'bi-eye');
-    } else {
-        p.type = 'password';
-        i.classList.replace('bi-eye', 'bi-eye-slash');
-    }
-}
+// function togglePass() {
+//     const p = document.getElementById('password');
+//     const i = document.getElementById('togglePassword');
+//     if (p.type === 'password') {
+//         p.type = 'text';
+//         i.classList.replace('bi-eye-slash', 'bi-eye');
+//     } else {
+//         p.type = 'password';
+//         i.classList.replace('bi-eye', 'bi-eye-slash');
+//     }
+// }
 
-function login() {
+function login(event) {
+    event.preventDefault();
+
     const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
-    if (user.trim() !== "" && pass.trim() !== "") {
-        localStorage.setItem('currentUser', user);
-        window.location.href = 'shop.html';
-    } else {
-        alert("נא למלא שם משתמש וסיסמה");
-    }
+
+    localStorage.setItem('currentUser', user);
+    window.location.href = 'shop.html';
 }
 
 async function fetchWeather() {
@@ -57,3 +55,4 @@ function resetAccess() { currentZoom = 1; document.body.style.zoom = 1; document
 setInterval(updateTime, 1000);
 updateTime();
 fetchWeather();
+
