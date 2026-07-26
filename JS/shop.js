@@ -1,6 +1,5 @@
-
+// שולף את השם ומציג
 let user = localStorage.getItem("currentUser") || "אורח";
-
 document.getElementById("userName").textContent = "שלום, " + user;
 
 /* פונק' להדפסת הכרטיסים */
@@ -11,7 +10,6 @@ function renderProducts(productsToShow) {
         container.innerHTML += `
                     <div class="col-auto">
                         <div class="card shadow-sm product-card">
-
                             <!-- תמונה -->
                             <img src="${product.image}" class="card-img-top product-img" alt="${product.name}">
 
@@ -67,10 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
 /* הדגשת כפתורי הנאב בלחיצה */
 function setNavBtn(active) {
     const buttons = document.querySelectorAll(".category-btn");
-
-
     buttons.forEach(btn => { btn.classList.remove("active", "fw-bold", "text-success") });
-
     active.classList.add("active", "fw-bold", "text-success");
 }
 

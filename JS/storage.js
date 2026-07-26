@@ -79,7 +79,7 @@ function renderCart() {
 
 
 
-/*קבלת מוצרים*/
+/*קבלת מוצרים מDATA */
 function getCart() {
     return JSON.parse(localStorage.getItem("products")) || [];
 }

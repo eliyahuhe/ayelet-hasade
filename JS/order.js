@@ -1,18 +1,14 @@
-// =====================
-// CONFIG
-// =====================
+
 const CART_KEY = "products";
 
-// =====================
-// FORMAT מחיר
-// =====================
+
+// מחיר
 function formatPrice(price) {
   return "₪" + Number(price).toFixed(2);
 }
 
-// =====================
+
 // חישוב סכום כולל
-// =====================
 function getTotal(cart) {
   let total = 0;
 
@@ -26,13 +22,11 @@ function getTotal(cart) {
   return total;
 }
 
-// =====================
+
 // הצגת עגלה
-// =====================
 function showCart() {
   let cart = getCart(); // מגיע מ-storage.js
-
-  let body = document.getElementById("cartBody");
+  let body = document.getElementById("cartBody"); 
   let totalBox = document.getElementById("grandTotal");
   let empty = document.getElementById("emptyCart");
   let btn = document.getElementById("submitBtn");
@@ -97,9 +91,8 @@ function showCart() {
   totalBox.innerText = formatPrice(getTotal(cart));
 }
 
-// =====================
-// כתובת משלוח
-// =====================
+
+// כתובת משלוח על מה לחץ
 window.toggleAddress = function () {
   let selected =
     document.querySelector('input[name="deliveryType"]:checked').value;
@@ -117,9 +110,6 @@ window.toggleAddress = function () {
   }
 };
 
-// =====================
-// STATE להזמנה
-// =====================
 window.tempOrder = null;
 
 // =====================
@@ -129,9 +119,8 @@ function isValidID(id) {
   return /^\d{9}$/.test(id);
 }
 
-// =====================
+
 // אישור הזמנה
-// =====================
 document.getElementById("submitBtn").addEventListener("click", function (e) {
   e.preventDefault();
 
@@ -171,13 +160,12 @@ window.closePopup = function () {
 
 };
 
-// =====================
-// תשלום (עם validation כמו בתמונה)
-// =====================
+
+// תשלום 
 document.getElementById("paymentForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
-  // מציג שגיאות שדות חובה (בלי alert)
+  // מציג שגיאות שדות חובה 
   if (!this.reportValidity()) return;
 
   let tz = document.getElementById("cardTz").value.trim();
@@ -221,14 +209,8 @@ document.getElementById("paymentForm").addEventListener("submit", function (e) {
   showCart();
 });
 
-// =====================
-// 🔥 חיבור חשוב ל-storage.js
-// =====================
-// גורם לכך שכל שינוי בעגלה (פלוס/מינוס/מחיקה)
+
 // יעדכן את הטבלה בעמוד הזה
 window.renderCart = showCart;
 
-// =====================
-// INIT
-// =====================
 showCart();

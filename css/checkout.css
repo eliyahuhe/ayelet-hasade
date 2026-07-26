@@ -6,7 +6,28 @@
       radial-gradient(circle at top right, rgba(40,167,69,0.2), transparent),
       linear-gradient(135deg, #f3fff6, #eef7ff);
   }
-  
+  /* --- Navbar & Header --- */
+.navbar-main {
+    background-color: rgb(0, 83, 80);
+}
+
+.user-btn {
+    border: none;
+    background: transparent;
+    color: white;
+}
+
+
+.logo-container {
+    position: relative;
+    right: 20px;
+}
+
+.logo-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+}
   /* כרטיס מרכזי */
 .custom-card {
   max-width: 800px;

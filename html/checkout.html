@@ -20,6 +20,32 @@
 
 <body>
 
+  <div class="sticky-top" dir="ltr">
+    <nav class="navbar navbar-main">
+      <div class="container-fluid d-flex align-items-center justify-content-between flex-nowrap ms-4">
+
+        <!-- שם משתמש -->
+        <div class="text-white d-flex align-items-center gap-2 ms-4">
+          <span id="userName"></span>
+          <button class="user-btn">
+            <i class="bi bi-person-circle fs-4"></i>
+          </button>
+        </div>
+
+        <!-- - לוגו + שם חנות -->
+        <div class="d-flex align-items-center gap-2 me-5 logo-container">
+          <span class="navbar-brand mb-0 fw-bold fs-4 text-white">
+            איילת השדה
+          </span>
+          <img src="/image/logo.png" class="rounded-circle border border-white border-1 logo-img">
+        </div>
+
+      </div>
+    </nav>
+  </div>
+
+
+
   <main class="container my-5">
     <div class="checkout-card">
 
@@ -41,7 +67,7 @@
               <th>מחיקה</th>
             </tr>
           </thead>
-
+          <!-- לכאן נשלחים השורות להדפסה -->
           <tbody id="cartBody"></tbody>
         </table>
       </div>
@@ -80,6 +106,7 @@
       <button id="submitBtn" class="btn-submit">אישור הזמנה ותשלום</button>
 
     </div>
+
   </main>
 
   <!-- פופאפ הצלחה -->
@@ -137,6 +164,7 @@
   <script src="/js/data.js"></script>
   <script src="/js/storage.js"></script>
   <script src="/js/order.js"></script>
+   <script src="/js/shop.js"></script>
 
 </body>
 

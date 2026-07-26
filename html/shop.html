@@ -30,7 +30,8 @@
                         <i class="bi bi-person-circle fs-4"></i>
                     </button>
                     <!-- מעבר לעגלה-->
-                    <button type="button" class="btn btn-success ms-5" onclick="moveToCheckout()"><i class="bi bi-cart4"></i> עגלה</button>
+                    <button type="button" class="btn btn-success ms-5" onclick="moveToCheckout()"><i
+                            class="bi bi-cart4"></i> עגלה</button>
                 </div>
 
                 <!-- חיפוש באמצע -->
@@ -49,7 +50,7 @@
 
             </div>
         </nav>
-        
+
         <!--בר משנה-->
         <nav class="navbar navbar-expand-lg bg-light border-top border-bottom">
             <div class="container justify-content-center ">
@@ -83,7 +84,7 @@
                     <!-- מוצרים יודפסו כאן -->
                 </div>
             </div>
-            
+
             <!-- העגלה -->
             <div class="col-lg-3">
                 <div class="card position-sticky bg-white cart-card">
@@ -108,7 +109,7 @@
                         </div>
 
                         <!-- כפתור -->
-                        <button class="btn w-100 rounded-3 fw-semibold btn-checkout"  onclick="moveToCheckout()">
+                        <button class="btn w-100 rounded-3 fw-semibold btn-checkout" onclick="moveToCheckout()">
                             המשך לתשלום
                         </button>
                     </div>
@@ -122,13 +123,18 @@
             <div class="row text-center text-md-end align-items-start">
 
                 <!-- קישורים -->
-                <div class="col-md-4 mb-4 footer-links-col">
-                    <h6 class="fw-bold mb-3 text-accent">ניווט מהיר</h6>
-                    <div class="d-flex flex-column gap-2 small">
-                        <a href="#" class="text-white text-decoration-none"  onclick="setNavBtn(this); filterproducts('all')">כל המוצרים</a>
-                        <!-- <a href="#" class="text-white text-decoration-none" onclick="setNavBtn(this); filterproducts('sele')">מבצעים</a> -->
-                        <a href="#" class="text-white text-decoration-none" onclick="setNavBtn(this); filterproducts('vegetables')">ירקות</a>
-                        <a href="#" class="text-white text-decoration-none" onclick="setNavBtn(this); filterproducts('fruits')">פירות</a>
+                <div class="col-md-4 mb-4 footer-links-col" style="position: relative; z-index: 9999;">
+                    <h6 class="fw-bold mb-3 text-accent text-end">ניווט מהיר</h6>
+
+                    <div class="d-flex flex-column align-items-end gap-2 small">
+                        <a href="#" class="category-btn text-white text-decoration-none p-0"
+                            onclick="setNavBtn(this); filterproducts('all')">כל המוצרים</a>
+
+                        <a href="#" class="category-btn text-white text-decoration-none p-0"
+                            onclick="setNavBtn(this); filterproducts('vegetables')">ירקות</a>
+
+                        <a href="#" class="category-btn text-white text-decoration-none p-0"
+                            onclick="setNavBtn(this); filterproducts('fruits')">פירות</a>
                     </div>
                 </div>
 
@@ -156,7 +162,8 @@
                 </div>
 
                 <!-- לוגו + שם -->
-                <div class="col-md-4 mb-4 d-flex align-items-center justify-content-md-end justify-content-center gap-3">
+                <div
+                    class="col-md-4 mb-4 d-flex align-items-center justify-content-md-end justify-content-center gap-3">
                     <div class="text-md-end text-center">
                         <span class="fw-bold fs-5 d-block">
                             איילת השדה
@@ -184,7 +191,7 @@
     <script src="../JS/data.js"></script>
     <script src="../JS/storage.js"></script>
     <script src="../JS/shop.js"></script>
-    
+
 </body>
 
 </html>
