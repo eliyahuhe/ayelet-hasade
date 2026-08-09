@@ -18,7 +18,7 @@ function login(event) {
     const user = document.getElementById('username').value;
 
     localStorage.setItem('currentUser', user);
-    window.location.href = 'shop.html';
+    window.location.href = 'html/shop.html';
 }
 
 async function fetchWeather() {
