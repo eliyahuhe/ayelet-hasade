@@ -1,24 +1,34 @@
-let currentZoom = 1;
-
-// function togglePass() {
-//     const p = document.getElementById('password');
-//     const i = document.getElementById('togglePassword');
-//     if (p.type === 'password') {
-//         p.type = 'text';
-//         i.classList.replace('bi-eye-slash', 'bi-eye');
-//     } else {
-//         p.type = 'password';
-//         i.classList.replace('bi-eye', 'bi-eye-slash');
-//     }
-// }
-
-function login(event) {
+async function login(event) {
     event.preventDefault();
 
     const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
 
-    localStorage.setItem('currentUser', user);
-    window.location.href = 'html/shop.html';
+    try {
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: user, password: pass })
+        });
+
+        // 3. פענוח ה-JSON שהשרת החזיר
+        const data = await response.json();
+
+        // 4. בדיקה האם השרת החזיר סטטוס הצלחה (200-299)
+        if (response.ok) {
+            localStorage.setItem('username', user);
+            window.location.href = 'html/shop.html';
+        } else {
+            alert(data.message || 'שם משתמש או סיסמה שגויים');
+        }
+
+    } catch (error) {
+        // שגיאת תקשורת/רשת (למשל: השרת למטה)
+        console.error('Error during login:', error);
+        alert('אירעה שגיאה בתקשורת עם השרת');
+    }
 }
 
 async function fetchWeather() {
@@ -38,19 +48,6 @@ function updateTime() {
     document.getElementById('current-time').innerText = n.getHours().toString().padStart(2, '0') + ":" + n.getMinutes().toString().padStart(2, '0');
 }
 
-function toggleAccessibilityMenu() {
-    const m = document.getElementById('access-menu');
-    m.style.display = (m.style.display === 'flex' ? 'none' : 'flex');
-}
-
-function changeFontSize(d) {
-    currentZoom += (d * 0.1);
-    currentZoom = Math.min(Math.max(currentZoom, 0.8), 1.5);
-    document.body.style.zoom = currentZoom;
-}
-
-function toggleGrayscale() { document.body.classList.toggle('grayscale'); }
-function resetAccess() { currentZoom = 1; document.body.style.zoom = 1; document.body.classList.remove('grayscale'); }
 
 setInterval(updateTime, 1000);
 updateTime();

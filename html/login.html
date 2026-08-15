@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>איילת השדה - כניסה</title>
     <link rel="icon" href="/image/favicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -21,20 +20,6 @@
         </div>
     </div>
 
-    <!-- נגישות -->
-    <!-- <div class="accessibility-wrapper">
-        <div class="accessibility-fab" onclick="toggleAccessibilityMenu()" title="תפריט נגישות">
-            <i class="bi bi-person-wheelchair"></i>
-        </div>
-        <div id="access-menu" class="access-menu">
-            <h3 id="acc-title">נגישות</h3>
-            <button onclick="changeFontSize(1)">א (+) הגדל</button>
-            <button onclick="changeFontSize(-1)">א (-) הקטן</button>
-            <button onclick="toggleGrayscale()">שחור לבן</button>
-            <button onclick="resetAccess()">איפוס</button>
-        </div>
-    </div> -->
-
     <form onsubmit="login(event)">
         <div class="login-container">
             <div class="login-card">
@@ -43,22 +28,59 @@
                 <h2>ברוכים הבאים!</h2>
 
                 <div class="input-group">
+                    <!-- שם משתמש -->
                     <input type="text" id="username" placeholder="הכנס שם משתמש..." autocomplete="off" required
                         pattern="[A-Za-zא-ת ]+" title="יש להזין אותיות בלבד">
-<!-- 
+
+                    <!-- סיסמה -->
                     <div class="pass-group">
-                        <input type="tel" id="phone" placeholder="הכנס מספר טלפון" autocomplete="off" required>
-                        <i class="bi bi-eye-slash" id="togglephone" onclick="togglePass()"></i>
-                    </div> -->
+                        <input type="password" id="password" placeholder="הכנס סיסמה..." autocomplete="current-password"
+                            required>
+                        <i class="bi bi-eye-slash" id="togglePassword" onclick="togglePass()"></i>
+                    </div>
                 </div>
 
+                <!-- כפתור כניסה רגיל -->
                 <button type="submit" id="login-btn">כניסה</button>
+
+                <!-- כפתור כניסת אורח -->
+                <button type="button" id="guest-btn" onclick="guestLogin()" class="btn-secondary">כניסה כאורח</button>
+
+                <!-- קישור להרשמה -->
+                <div class="register-link">
+                    <span>עדיין אין לך חשבון?</span>
+                    <a href="/register.html">להרשמה לחץ כאן</a>
+                </div>
 
             </div>
         </div>
     </form>
 
     <script src="../js/login.js"></script>
+    <script>
+        // פונקציה להצגה/הסתרה של הסיסמה
+        function togglePass() {
+            const passInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('togglePassword');
+
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            } else {
+                passInput.type = 'password';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            }
+        }
+
+        // פונקציה לדוגמה עבור כניסת אורח
+        function guestLogin() {
+            // תוכל לממש כאן התחברות כאורח או הפניה לדף הרצוי
+            console.log("התחברות כאורח");
+            // window.location.href = '/home.html';
+        }
+    </script>
 </body>
 
 </html>

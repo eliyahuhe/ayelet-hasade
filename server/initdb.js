@@ -1,17 +1,15 @@
-const { MongoClient } = require('mongodb');
-
-const uri = "mongodb+srv://levinaouri9_db_user:Le9164601@cluster0.mzv8izl.mongodb.net/?appName=Cluster0";
-
-const client = new MongoClient(uri);
+const { connectDB, closeDB } = require('./db');
 
 async function run() {
     try {
+        const database = await connectDB();
+        console.log("1. WELCOME TO THE DATABASE!");
 
-        await client.connect();
-        console.log("1. התחברנו ל-Atlas בהצלחה!");
-
-        const database = client.db('mydatabase');
         const collection = database.collection('stock');
+
+        // ניקוי הקולקשן הישן לפני הכנסת הנתונים המעודכנים
+        await collection.deleteMany({});
+
         const result = await collection.insertMany([
             { id: 1, name: "גזר", price: 5.9, unit: "ק״ג", image: "/image/vegetables/carrot.png", category: "vegetables", sale: true, stock: 18 },
             { id: 2, name: "מלפפון", price: 6.9, unit: "ק״ג", image: "/image/vegetables/cucumber.png", category: "vegetables", stock: 12 },
@@ -35,14 +33,13 @@ async function run() {
             { id: 20, name: "רימון", price: 12, unit: "ק״ג", image: "/image/fruits/Pomegranate.png", category: "fruits", stock: 7 }
         ]);
 
-        console.log(`2. הוכנסו בהצלחה ${result.insertedCount} מוצרים!`);
-    }
-    catch (error) {
-        console.error("❌ קפצה שגיאה:", error);
-    }
-    finally {
-        await client.close();
-        console.log("3. החיבור נסגר.");
+        console.log(`2. SUCCESSFULLY POPULATED STOCK WITH ${result.insertedCount} ITEMS!`);
+    } catch (error) {
+        console.error("❌ Error:", error);
+    } finally {
+        await closeDB();
+        console.log("3. CLOSED CONNECTION TO DATABASE!");
+        process.exit(0);
     }
 }
 
