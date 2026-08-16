@@ -19,6 +19,7 @@ async function singin(event) {
             });
             if (response.ok) {
                 alert('ההרשמה הצליחה!');
+                window.location.href = '/html/shop.html';
             } else {
                 alert('התרחשה שגיאה בהרשמה.');
             }

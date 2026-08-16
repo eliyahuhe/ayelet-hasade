@@ -41,10 +41,19 @@ app.post('/signup', async (req, res) => {
     // 3. שמירה במסד הנתונים
     const result = await customersCollection.insertOne(newCustomer);
 
+    // לשמור עוגיה של שם המשתמש ותפקיד ניהול או לא 
+    res.cookie('user', JSON.stringify(newCustomer), {
+      httpOnly: false, // שים ל-true אם אתה משתמש ב-JWT/Sessions מאובטחים מהשרת
+      maxAge: 24 * 60 * 60 * 1000 // תוקף ל-24 שעות
+    });
+
     res.status(201).json({
       message: 'המשתמש נרשם בהצלחה',
       userId: result.insertedId
     });
+
+
+
 
   } catch (error) {
     console.error('Error in /signup:', error);
@@ -54,7 +63,7 @@ app.post('/signup', async (req, res) => {
 
 app.use('/html', express.static(path.join(__dirname, '../html')));
 app.use('/css', express.static(path.join(__dirname, '../css')));
-app.use('/js', express.static(path.join(__dirname, '../JS'))); // שים לב: JS באותיות גדולות לפי התמונה
+app.use('/js', express.static(path.join(__dirname, '../JS')));
 app.use('/image', express.static(path.join(__dirname, '../image')));
 
 app.get('/', (req, res) => {
