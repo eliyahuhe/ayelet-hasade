@@ -53,3 +53,8 @@ setInterval(updateTime, 1000);
 updateTime();
 fetchWeather();
 
+// כניסת אורח
+function guestLogin() {
+    console.log("התחברות כאורח");
+    window.location.href = '/html/shop.html';
+}

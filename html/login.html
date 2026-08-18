@@ -49,7 +49,7 @@
                 <!-- קישור להרשמה -->
                 <div class="register-link">
                     <span>עדיין אין לך חשבון?</span>
-                    <a href="/register.html">להרשמה לחץ כאן</a>
+                    <a href="/html/signUp.html">להרשמה לחץ כאן</a>
                 </div>
 
             </div>
@@ -57,30 +57,7 @@
     </form>
 
     <script src="../js/login.js"></script>
-    <script>
-        // פונקציה להצגה/הסתרה של הסיסמה
-        function togglePass() {
-            const passInput = document.getElementById('password');
-            const toggleIcon = document.getElementById('togglePassword');
 
-            if (passInput.type === 'password') {
-                passInput.type = 'text';
-                toggleIcon.classList.remove('bi-eye-slash');
-                toggleIcon.classList.add('bi-eye');
-            } else {
-                passInput.type = 'password';
-                toggleIcon.classList.remove('bi-eye');
-                toggleIcon.classList.add('bi-eye-slash');
-            }
-        }
-
-        // פונקציה לדוגמה עבור כניסת אורח
-        function guestLogin() {
-            // תוכל לממש כאן התחברות כאורח או הפניה לדף הרצוי
-            console.log("התחברות כאורח");
-            // window.location.href = '/home.html';
-        }
-    </script>
 </body>
 
 </html>

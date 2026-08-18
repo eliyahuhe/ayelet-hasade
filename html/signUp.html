@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <form onsubmit="singin(event)">
+    <form onsubmit="signUp(event)">
         <div class="login-container">
             <div class="login-card">
 
@@ -62,31 +62,15 @@
                 <!-- קישור לחזרה לכניסה -->
                 <div class="register-link">
                     <span>כבר יש לך חשבון?</span>
-                    <a href="/login.html">להתחברות לחץ כאן</a>
+                    <a href="/html/login.html">להתחברות לחץ כאן</a>
                 </div>
 
             </div>
         </div>
     </form>
 
-    <script src="../js/singin.js"></script>
-    <script>
-        // פונקציה להצגה/הסתרה של סיסמה (תומכת בשני שדות הסיסמה)
-        function togglePass(inputId, iconId) {
-            const passInput = document.getElementById(inputId);
-            const toggleIcon = document.getElementById(iconId);
+    <script src="/js/signUp.js"></script>
 
-            if (passInput.type === 'password') {
-                passInput.type = 'text';
-                toggleIcon.classList.remove('bi-eye-slash');
-                toggleIcon.classList.add('bi-eye');
-            } else {
-                passInput.type = 'password';
-                toggleIcon.classList.remove('bi-eye');
-                toggleIcon.classList.add('bi-eye-slash');
-            }
-        }
-    </script>
 </body>
 
 </html>

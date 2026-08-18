@@ -1,4 +1,4 @@
-async function singin(event) {
+async function signUp(event) {
     event.preventDefault();
     const user = document.getElementById('username').value;
     const phone = document.getElementById('phone').value;
@@ -31,3 +31,24 @@ async function singin(event) {
 
 };
 
+    
+    // פונקציה להצגה/הסתרה של סיסמה (תומכת בשני שדות הסיסמה)
+        function togglePass(inputId, iconId) {
+            const passInput = document.getElementById(inputId);
+            const toggleIcon = document.getElementById(iconId);
+
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            } else {
+                passInput.type = 'password';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            }
+        }
+    
+        
+
+        
+    

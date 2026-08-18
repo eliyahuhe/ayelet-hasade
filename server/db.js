@@ -1,11 +1,11 @@
 const { MongoClient } = require('mongodb');
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://levinaouri9_db_user:Le9164601@cluster0.mzv8izl.mongodb.net/?appName=Cluster0";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://eliheskiel_db_user:NX3Kdu2lWWb9seSs@ac-eg5uqwr-shard-00-00.jsb1m9y.mongodb.net:27017,ac-eg5uqwr-shard-00-01.jsb1m9y.mongodb.net:27017,ac-eg5uqwr-shard-00-02.jsb1m9y.mongodb.net:27017/?ssl=true&replicaSet=atlas-l79fta-shard-0&authSource=admin&appName=AyeletHasadeDB";
 
 const client = new MongoClient(MONGODB_URI);
 let dbInstance;
 
-/**
+/** 
  * מתחבר למסד הנתונים בעת הפעלת השרת (פעם אחת בלבד)
  */
 async function connectDB() {
