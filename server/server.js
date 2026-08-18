@@ -69,7 +69,7 @@ app.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'יש למלא את שדות החובה' })
     }
 
-    const db = getdb();
+    const db = getDB();
     const customersCollection = db.collection('customers');
 
     const user = await customersCollection.findOne({ name: username });
@@ -78,13 +78,14 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'שם המשתמש או הסיסמה שגויים' })
     }
 
+    console.log("3. המשתמש נמצא! הסיסמה המוצפנת שלו היא:", user.password);
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    if (!ispasswordValid) {
+    if (!isPasswordValid) {
       return res.status(401).json({ message: 'שם משתמש או סיסמה שגויים' })
     }
 
-    res.cookie('user', json.stringify(user), {
+    res.cookie('user', JSON.stringify(user), {
       httpOnly: false,
       maxAge: 24 * 60 * 60 * 1000
     });
