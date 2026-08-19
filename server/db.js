@@ -13,8 +13,8 @@ async function connectDB() {
 
     try {
         await client.connect();
-        // הקפדה על שם מסד נתונים אחיד בכל הפרויקט: myDatabase
-        dbInstance = client.db('mydatabase');
+        // הקפדה על שם מסד נתונים אחיד בכל הפרויקט: AyeletHasadeDB
+        dbInstance = client.db('AyeletHasadeDB');
         console.log('Successfully connected to MongoDB');
         return dbInstance;
     } catch (error) {

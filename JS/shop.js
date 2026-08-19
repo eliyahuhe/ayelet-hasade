@@ -1,9 +1,31 @@
+let products = [];
+
 
 const cookieString = document.cookie.split(';').find(row => row.trim().startsWith('username='));
 const userName = cookieString ? decodeURIComponent(cookieString.split('=')[1]) : "אורח";
-
-// 3. מציגים במסך
 document.getElementById("userName").textContent = "שלום, " + userName;
+
+
+async function loadProducts() {
+    try {
+        // פונים לנתיב שיצרנו בשרת
+        const response = await fetch('/products');
+
+        if (!response.ok) {
+            throw new Error('שגיאה בתקשורת עם השרת');
+        }
+
+        // ממלאים את המשתנה שלנו בנתונים שהגיעו ממונגו
+        products = await response.json();
+
+        // עכשיו כשיש לנו מוצרים, אנחנו מציירים אותם על המסך
+        renderProducts(products);
+
+    } catch (error) {
+        console.error('שגיאה במשיכת המוצרים:', error);
+    }
+}
+
 
 /* פונק' להדפסת הכרטיסים */
 function renderProducts(productsToShow) {
@@ -60,8 +82,8 @@ function filterproducts(category) {
 }
 
 /* קריאה לפונק' להדפסה */
-document.addEventListener("DOMContentLoaded", function () {
-    renderProducts(products);
+document.addEventListener("DOMContentLoaded", async function () {
+    loadProducts();
     renderCart();
 });
 

@@ -100,7 +100,22 @@ app.post('/login', async (req, res) => {
 
   }
 });
+app.get('/products', async (req, res) => {
+  try {
+    const db = getDB();
+    // חשוב: אנחנו פונים לאוסף stock שבו הרגע שמרת את הנתונים
+    const stockCollection = db.collection('stock');
 
+    // שולפים את הכל והופכים למערך
+    const products = await stockCollection.find({}).toArray();
+
+    // שולחים חזרה לדפדפן
+    res.status(200).json(products);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ error: 'שגיאה בשליפת המלאי ממסד הנתונים' });
+  }
+});
 
 
 
