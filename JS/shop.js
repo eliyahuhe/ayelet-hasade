@@ -1,6 +1,9 @@
-// שולף את השם ומציג
-let user = localStorage.getItem("currentUser") || "אורח";
-document.getElementById("userName").textContent = "שלום, " + user;
+
+const cookieString = document.cookie.split(';').find(row => row.trim().startsWith('username='));
+const userName = cookieString ? decodeURIComponent(cookieString.split('=')[1]) : "אורח";
+
+// 3. מציגים במסך
+document.getElementById("userName").textContent = "שלום, " + userName;
 
 /* פונק' להדפסת הכרטיסים */
 function renderProducts(productsToShow) {

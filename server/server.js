@@ -42,11 +42,10 @@ app.post('/signup', async (req, res) => {
     const result = await customersCollection.insertOne(newCustomer);
 
     // לשמור עוגיה של שם המשתמש ותפקיד ניהול או לא 
-    res.cookie('user', JSON.stringify(newCustomer), {
-      httpOnly: false, // שים ל-true אם אתה משתמש ב-JWT/Sessions מאובטחים מהשרת
-      maxAge: 24 * 60 * 60 * 1000 // תוקף ל-24 שעות
+    res.cookie('username', newCustomer.name, {
+      httpOnly: false,
+      maxAge: 24 * 60 * 60 * 1000
     });
-
     res.status(201).json({
       message: 'המשתמש נרשם בהצלחה',
       userId: result.insertedId
@@ -85,11 +84,10 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'שם משתמש או סיסמה שגויים' })
     }
 
-    res.cookie('user', JSON.stringify(user), {
+    res.cookie('username', user.name, {
       httpOnly: false,
       maxAge: 24 * 60 * 60 * 1000
     });
-
     res.status(200).json({
       message: 'התחברות הצליחה',
       username: user.name
