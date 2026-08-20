@@ -26,7 +26,7 @@ function getTotal(cart) {
 // הצגת עגלה
 function showCart() {
   let cart = getCart(); // מגיע מ-storage.js
-  let body = document.getElementById("cartBody"); 
+  let body = document.getElementById("cartBody");
   let totalBox = document.getElementById("grandTotal");
   let empty = document.getElementById("emptyCart");
   let btn = document.getElementById("submitBtn");
@@ -195,6 +195,16 @@ document.getElementById("paymentForm").addEventListener("submit", function (e) {
 
   // ריקון עגלה בלבד
   localStorage.removeItem(CART_KEY);
+
+  // ניקוי עגלה בשרת למשתמש רשום
+  const username = localStorage.getItem('username');
+  if (username) {
+    fetch('/cart/clear', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username })
+    }).catch(err => console.error('שגיאה בניקוי עגלה בשרת:', err));
+  }
 
   closePaymentPopup();
 

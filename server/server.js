@@ -140,7 +140,26 @@ app.post('/cart/update', async (req, res) => {
   }
 });
 
-// 4. שליפת מלאי מוצרים
+// 4. ניקוי עגלה לאחר הזמנה
+app.post('/cart/clear', async (req, res) => {
+  try {
+    const { username } = req.body;
+    if (!username) return res.status(400).json({ error: 'חסר שם משתמש' });
+
+    const db = getDB();
+    await db.collection('customers').updateOne(
+      { name: username },
+      { $set: { cart: [] } }
+    );
+
+    res.status(200).json({ message: 'העגלה נוקתה' });
+  } catch (error) {
+    console.error('Error in /cart/clear:', error);
+    res.status(500).json({ error: 'שגיאת שרת פנימית' });
+  }
+});
+
+// 5. שליפת מלאי מוצרים
 app.get('/products', async (req, res) => {
   try {
     const db = getDB();

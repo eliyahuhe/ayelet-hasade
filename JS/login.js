@@ -13,19 +13,24 @@ async function login(event) {
             body: JSON.stringify({ username: user, password: pass })
         });
 
-        // 3. פענוח ה-JSON שהשרת החזיר
         const data = await response.json();
 
-        // 4. בדיקה האם השרת החזיר סטטוס הצלחה (200-299)
         if (response.ok) {
             localStorage.setItem('username', user);
+
+            // --- שינוי: הפיכת העגלה מ-MongoDB למבנה המקומי והחלפת ה-localStorage ---
+            const dbCart = (data.cart || []).map(item => ({
+                id: item.productId,
+                quantity: item.quantity
+            }));
+            localStorage.setItem('products', JSON.stringify(dbCart));
+
             window.location.href = 'html/shop.html';
         } else {
             alert(data.message || 'שם משתמש או סיסמה שגויים');
         }
 
     } catch (error) {
-        // שגיאת תקשורת/רשת (למשל: השרת למטה)
         console.error('Error during login:', error);
         alert('אירעה שגיאה בתקשורת עם השרת');
     }
@@ -33,6 +38,7 @@ async function login(event) {
 
 async function fetchWeather() {
     const el = document.getElementById('weather-info');
+    if (!el) return;
     try {
         const res = await fetch('https://wttr.in/Israel?format=3');
         const text = await res.text();
@@ -44,16 +50,18 @@ async function fetchWeather() {
 }
 
 function updateTime() {
-    const n = new Date();
-    document.getElementById('current-time').innerText = n.getHours().toString().padStart(2, '0') + ":" + n.getMinutes().toString().padStart(2, '0');
+    const el = document.getElementById('current-time');
+    if (el) {
+        const n = new Date();
+        el.innerText = n.getHours().toString().padStart(2, '0') + ":" + n.getMinutes().toString().padStart(2, '0');
+    }
 }
-
 
 setInterval(updateTime, 1000);
 updateTime();
 fetchWeather();
 
-// כניסת אורח
+// כניסת אורח - ניקוי עגלה ושם משתמש
 function guestLogin() {
     console.log("התחברות כאורח");
     localStorage.clear();

@@ -30,6 +30,7 @@ async function loadProducts() {
 /* פונק' להדפסת הכרטיסים */
 function renderProducts(productsToShow) {
     const container = document.getElementById("productsContainer");
+    if (!container) return;
     container.innerHTML = "";
     productsToShow.forEach(product => {
         container.innerHTML += `
@@ -83,7 +84,7 @@ function filterproducts(category) {
 
 /* קריאה לפונק' להדפסה */
 document.addEventListener("DOMContentLoaded", async function () {
-    loadProducts();
+    await loadProducts();
     renderCart();
 });
 
