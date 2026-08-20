@@ -1,6 +1,3 @@
-
-
-
 function renderCart() {
     let cart = getCart();
     let container = document.getElementById("cartItems");
@@ -74,8 +71,6 @@ function renderCart() {
     });
     document.getElementById("cartSum").textContent = "₪" + total.toFixed(2);
 }
-
-
 
 
 
