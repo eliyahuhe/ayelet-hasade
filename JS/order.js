@@ -1,19 +1,16 @@
-
 const CART_KEY = "products";
-
 
 // מחיר
 function formatPrice(price) {
   return "₪" + Number(price).toFixed(2);
 }
 
-
 // חישוב סכום כולל
 function getTotal(cart) {
   let total = 0;
 
   cart.forEach(item => {
-    let product = products.find(p => p.id === item.id);
+    let product = products.find(p => String(p.id) === String(item.id));
     if (!product) return;
 
     total += product.price * item.quantity;
@@ -22,8 +19,7 @@ function getTotal(cart) {
   return total;
 }
 
-
-// הצגת עגלה
+// הצגת עגלה בדף Checkout
 function showCart() {
   let cart = getCart(); // מגיע מ-storage.js
   let body = document.getElementById("cartBody");
@@ -31,20 +27,22 @@ function showCart() {
   let empty = document.getElementById("emptyCart");
   let btn = document.getElementById("submitBtn");
 
+  if (!body) return;
+
   body.innerHTML = "";
 
   if (cart.length === 0) {
-    empty.classList.remove("d-none");
-    btn.disabled = true;
-    totalBox.innerText = "₪0.00";
+    if (empty) empty.classList.remove("d-none");
+    if (btn) btn.disabled = true;
+    if (totalBox) totalBox.innerText = "₪0.00";
     return;
   }
 
-  empty.classList.add("d-none");
-  btn.disabled = false;
+  if (empty) empty.classList.add("d-none");
+  if (btn) btn.disabled = false;
 
   cart.forEach(item => {
-    let product = products.find(p => p.id === item.id);
+    let product = products.find(p => String(p.id) === String(item.id));
     if (!product) return;
 
     let sum = product.price * item.quantity;
@@ -67,10 +65,9 @@ function showCart() {
 
       <td>
         <div class="qty-box">
-          <!-- משתמש בפונקציות מ-storage.js -->
-          <button onclick="removeFromCart(${item.id})">−</button>
+          <button onclick="removeFromCart('${item.id}')">−</button>
           <span>${item.quantity} ק״ג</span>
-          <button onclick="addToCart(${item.id})">+</button>
+          <button onclick="addToCart('${item.id}')">+</button>
         </div>
       </td>
 
@@ -78,8 +75,7 @@ function showCart() {
       <td>${formatPrice(sum)}</td>
 
       <td>
-        <!-- גם מחיקה מגיעה מ-storage.js -->
-        <button class="delete-btn" onclick="deleteProduct(${item.id})">
+        <button class="delete-btn" onclick="deleteProduct('${item.id}')">
           <i class="bi bi-trash"></i>
         </button>
       </td>
@@ -88,17 +84,16 @@ function showCart() {
     body.appendChild(row);
   });
 
-  totalBox.innerText = formatPrice(getTotal(cart));
+  if (totalBox) totalBox.innerText = formatPrice(getTotal(cart));
 }
 
-
-// כתובת משלוח על מה לחץ
+// כתובת משלוח
 window.toggleAddress = function () {
-  let selected =
-    document.querySelector('input[name="deliveryType"]:checked').value;
-
+  let selected = document.querySelector('input[name="deliveryType"]:checked')?.value;
   let addressBox = document.getElementById("addressBox");
   let addressInput = document.getElementById("deliveryAddress");
+
+  if (!addressBox || !addressInput) return;
 
   if (selected === "delivery") {
     addressBox.classList.remove("d-none");
@@ -112,115 +107,133 @@ window.toggleAddress = function () {
 
 window.tempOrder = null;
 
-// =====================
-// ולידציה ת"ז (9 ספרות בלבד)
-// =====================
 function isValidID(id) {
   return /^\d{9}$/.test(id);
 }
 
+// אישור הזמנה - פתיחת פופאפ אשראי
+const submitBtn = document.getElementById("submitBtn");
+if (submitBtn) {
+  submitBtn.addEventListener("click", function (e) {
+    e.preventDefault();
 
-// אישור הזמנה
-document.getElementById("submitBtn").addEventListener("click", function (e) {
-  e.preventDefault();
+    let cart = getCart();
+    if (cart.length === 0) return;
 
-  let cart = getCart();
-  if (cart.length === 0) return;
+    let deliveryType = document.querySelector('input[name="deliveryType"]:checked')?.value;
+    let address = document.getElementById("deliveryAddress")?.value.trim() || "";
 
-  let deliveryType =
-    document.querySelector('input[name="deliveryType"]:checked').value;
+    if (deliveryType === "delivery" && address === "") {
+      alert("נא להזין כתובת למשלוח");
+      return;
+    }
 
-  let address =
-    document.getElementById("deliveryAddress").value.trim();
+    window.tempOrder = { cart, deliveryType, address };
+    openPaymentPopup();
+  });
+}
 
-  if (deliveryType === "delivery" && address === "") {
-    alert("נא להזין כתובת למשלוח");
-    return;
-  }
-
-  window.tempOrder = { cart, deliveryType, address };
-
-  openPaymentPopup();
-});
-
-// =====================
 // POPUPS
-// =====================
 window.openPaymentPopup = function () {
-  document.getElementById("paymentPopup").classList.remove("d-none");
+  const p = document.getElementById("paymentPopup");
+  if (p) p.classList.remove("d-none");
 };
 
 window.closePaymentPopup = function () {
-  document.getElementById("paymentPopup").classList.add("d-none");
+  const p = document.getElementById("paymentPopup");
+  if (p) p.classList.add("d-none");
 };
 
 window.closePopup = function () {
-  document.getElementById("popup").classList.add("d-none");
-  window.location.href = "login.html";
-
+  const p = document.getElementById("popup");
+  if (p) p.classList.add("d-none");
+  window.location.href = "/html/shop.html";
 };
 
+// תשלום ושליחת ההזמנה לשרת (כולל בדיקת מלאי)
+const paymentForm = document.getElementById("paymentForm");
+if (paymentForm) {
+  paymentForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-// תשלום 
-document.getElementById("paymentForm").addEventListener("submit", function (e) {
-  e.preventDefault();
+    if (!this.reportValidity()) return;
 
-  // מציג שגיאות שדות חובה 
-  if (!this.reportValidity()) return;
+    let tz = document.getElementById("cardTz").value.trim();
 
-  let tz = document.getElementById("cardTz").value.trim();
+    if (!isValidID(tz)) {
+      document.getElementById("cardTz").setCustomValidity("יש להזין 9 ספרות");
+      document.getElementById("cardTz").reportValidity();
+      return;
+    }
 
-  if (!isValidID(tz)) {
-    document.getElementById("cardTz").setCustomValidity("יש להזין 9 ספרות");
-    document.getElementById("cardTz").reportValidity();
-    return;
-  }
+    document.getElementById("cardTz").setCustomValidity("");
 
-  document.getElementById("cardTz").setCustomValidity("");
+    let data = window.tempOrder;
+    if (!data) return;
 
-  let data = window.tempOrder;
-  if (!data) return;
+    const username = localStorage.getItem('username') || 'אורח';
 
-  let orderId = "ORD-" + Date.now();
+    const orderData = {
+      username: username,
+      items: data.cart,
+      deliveryType: data.deliveryType,
+      address: data.address,
+      total: getTotal(data.cart)
+    };
 
-  let order = {
-    id: orderId,
-    items: data.cart,
-    deliveryType: data.deliveryType,
-    address: data.address,
-    total: getTotal(data.cart)
-  };
+    try {
+      // שליחת ההזמנה לשרת
+      const response = await fetch('/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
 
-  localStorage.setItem("lastOrder", JSON.stringify(order));
+      const result = await response.json();
 
-  // ריקון עגלה בלבד
-  localStorage.removeItem(CART_KEY);
+      if (!response.ok) {
+        // הצגת השגיאה מהשרת (כולל רשימת המוצרים שחסרים במלאי)
+        alert(result.error || "אירעה שגיאה בביצוע ההזמנה");
+        return;
+      }
 
-  // ניקוי עגלה בשרת למשתמש רשום
-  const username = localStorage.getItem('username');
-  if (username) {
-    fetch('/cart/clear', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username })
-    }).catch(err => console.error('שגיאה בניקוי עגלה בשרת:', err));
-  }
+      // במקרה של הצלחה:
+      localStorage.setItem("lastOrder", JSON.stringify({ ...orderData, id: result.orderId }));
+      localStorage.removeItem(CART_KEY); // ניקוי עגלה מקומית
 
-  closePaymentPopup();
+      closePaymentPopup();
 
-  document.getElementById("popupText").innerText =
-    "תודה שקנית אצלנו 🙏\n" +
-    "ההזמנה שלך התקבלה בהצלחה ותטופל בהקדם\n" +
-    "צוות איילת השדה כאן בשבילך תמיד 💚\n" +
-    "מספר הזמנה: " + orderId;
+      const popupText = document.getElementById("popupText");
+      if (popupText) {
+        popupText.innerText =
+          "תודה שקנית אצלנו 🙏\n" +
+          "ההזמנה שלך התקבלה בהצלחה ותטופל בהקדם\n" +
+          "צוות איילת השדה כאן בשבילך תמיד 💚\n" +
+          "מספר הזמנה: " + result.orderId;
+      }
 
-  document.getElementById("popup").classList.remove("d-none");
+      const popup = document.getElementById("popup");
+      if (popup) popup.classList.remove("d-none");
 
-  showCart();
-});
+      showCart();
 
+    } catch (err) {
+      console.error('שגיאה בתקשורת מול השרת ביצירת הזמנה:', err);
+      alert('אירעה שגיאה בתקשורת עם השרת, אנא נסה שוב');
+    }
+  });
+}
 
-// יעדכן את הטבלה בעמוד הזה
+// דריסת הפונקציה renderCart מ-storage.js עבור עמוד ה-Checkout
 window.renderCart = showCart;
 
-showCart();
+// טעינת המוצרים מהשרת ולאחר מכן הצגת העגלה בדף
+document.addEventListener("DOMContentLoaded", async function () {
+  if (typeof displayUserName === 'function') {
+    displayUserName();
+  }
+  if (typeof loadProducts === 'function') {
+    await loadProducts();
+  }
+  showCart();
+});
