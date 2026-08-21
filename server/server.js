@@ -1,4 +1,5 @@
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const { connectDB, getDB, closeDB } = require('./db');
@@ -7,46 +8,67 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(cookieParser());
+
+// Middleware לבדיקת הרשאת מנהל
+function requireAdmin(req, res, next) {
+  const role = req.cookies?.role;
+  if (role === 'admin') {
+    next();
+  } else {
+    res.redirect('/');
+  }
+}
 
 // 1. נתיב הרשמה (SignUp)
 app.post('/signup', async (req, res) => {
   try {
-    const { username, phone, password } = req.body;
+    const { firstName, username, phone, password } = req.body;
 
-    if (!username || !phone || !password) {
+    if (!firstName || !username || !phone || !password) {
       return res.status(400).json({ error: 'חסרים שדות חובה' });
     }
 
     const db = getDB();
     const customersCollection = db.collection('customers');
 
-    const existingUser = await customersCollection.findOne({ phone: phone });
+    const existingUser = await customersCollection.findOne({ username: username });
     if (existingUser) {
-      return res.status(409).json({ error: 'משתמש עם מספר טלפון זה כבר קיים' });
+      return res.status(409).json({ error: 'שם משתמש זה כבר תפוס, נא לבחור שם אחר' });
     }
 
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const newCustomer = {
-      name: username,
+      firstName: firstName,
+      username: username,
       phone: phone,
       password: hashedPassword,
       createdAt: new Date(),
-      cart: [] // יצירת מערך עגלה ריק מלכתחילה
+      cart: [],
+      role: 'customer'
     };
 
     const result = await customersCollection.insertOne(newCustomer);
 
-    res.cookie('username', newCustomer.name, {
+    res.cookie('username', newCustomer.username, {
       httpOnly: false,
+      maxAge: 24 * 60 * 60 * 1000
+    });
+
+    res.cookie('role', newCustomer.role, {
+      httpOnly: true,
+      sameSite: 'strict',
       maxAge: 24 * 60 * 60 * 1000
     });
 
     res.status(201).json({
       message: 'המשתמש נרשם בהצלחה',
       userId: result.insertedId,
-      username: newCustomer.name,
+      firstName: newCustomer.firstName,
+      username: newCustomer.username,
+      role: newCustomer.role,
       cart: []
     });
 
@@ -56,7 +78,7 @@ app.post('/signup', async (req, res) => {
   }
 });
 
-// 2. נתיב התחברות (Login) - מחזיר גם את העגלה השמורה ב-DB
+// 2. נתיב התחברות (Login)
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -68,7 +90,7 @@ app.post('/login', async (req, res) => {
     const db = getDB();
     const customersCollection = db.collection('customers');
 
-    const user = await customersCollection.findOne({ name: username });
+    const user = await customersCollection.findOne({ username: username });
 
     if (!user) {
       return res.status(401).json({ message: 'שם המשתמש או הסיסמה שגויים' });
@@ -80,15 +102,25 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'שם משתמש או סיסמה שגויים' });
     }
 
-    res.cookie('username', user.name, {
+    const userRole = user.role || 'customer';
+
+    res.cookie('username', user.username, {
       httpOnly: false,
       maxAge: 24 * 60 * 60 * 1000
     });
 
-    // מחזירים את העגלה מה-DB
+    res.cookie('role', userRole, {
+      httpOnly: true,
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000
+    });
+
+    // תיקון קריטי: החזרת firstName בתגובה!
     res.status(200).json({
       message: 'התחברות הצליחה',
-      username: user.name,
+      firstName: user.firstName,
+      username: user.username,
+      role: userRole,
       cart: user.cart || []
     });
 
@@ -98,7 +130,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// 3. נתיב חדש: עדכון/סנכרון עגלה ב-MongoDB
+// 3. עדכון/סנכרון עגלה ב-MongoDB
 app.post('/cart/update', async (req, res) => {
   try {
     const { username, productId, quantity } = req.body;
@@ -112,22 +144,19 @@ app.post('/cart/update', async (req, res) => {
     const numProductId = Number(productId);
 
     if (quantity <= 0) {
-      // אם הכמות 0 - הסרה מתוך המערך
       await customersCollection.updateOne(
-        { name: username },
+        { username: username },
         { $pull: { cart: { productId: numProductId } } }
       );
     } else {
-      // ניסיון לעדכן מוצר קיים
       const result = await customersCollection.updateOne(
-        { name: username, "cart.productId": numProductId },
+        { username: username, "cart.productId": numProductId },
         { $set: { "cart.$.quantity": quantity } }
       );
 
-      // אם המוצר לא היה בעגלה - הוספתו כחדש ($push דואג ליצור את cart אם אינו קיים)
       if (result.matchedCount === 0) {
         await customersCollection.updateOne(
-          { name: username },
+          { username: username },
           { $push: { cart: { productId: numProductId, quantity: quantity } } }
         );
       }
@@ -148,7 +177,7 @@ app.post('/cart/clear', async (req, res) => {
 
     const db = getDB();
     await db.collection('customers').updateOne(
-      { name: username },
+      { username: username },
       { $set: { cart: [] } }
     );
 
@@ -170,6 +199,11 @@ app.get('/products', async (req, res) => {
     console.error('Error fetching products:', error);
     res.status(500).json({ error: 'שגיאה בשליפת המלאי ממסד הנתונים' });
   }
+});
+
+// הגנה על קובץ ה-HTML של הנהלה
+app.get('/html/admin.html', requireAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, '../html/admin.html'));
 });
 
 // נתיבי Static Files

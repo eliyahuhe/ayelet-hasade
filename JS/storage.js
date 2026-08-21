@@ -26,7 +26,8 @@ function renderCart() {
     }
 
     cart.forEach(item => {
-        let product = products.find(p => p.id === item.id);
+        // --- תיקון: השוואה גמישה כמחרוזות ---
+        let product = products.find(p => String(p.id) === String(item.id));
         if (!product) return;
         total += item.quantity * product.price;
         container.innerHTML += `<div class="d-flex align-items-center border-bottom py-3 position-relative" style="padding-left: 35px;">
@@ -34,7 +35,7 @@ function renderCart() {
     <!-- כפתור מחיקה -->
    <button class="btn p-0 text-danger position-absolute"
         style="left: 5px; top: 50%; transform: translateY(-50%); text-decoration: none;"
-        onclick="deleteProduct(${item.id})"
+        onclick="deleteProduct('${item.id}')"
         title="הסר מוצר">
     <i class="bi bi-trash"></i>
 </button>
@@ -50,14 +51,14 @@ function renderCart() {
     <!-- פלוס/מינוס -->
    <div class="d-flex align-items-center border rounded-pill flex-shrink-0 bg-light ms-2 qty-control">
     <button class="btn btn-sm px-2 py-0 border-0 text-muted"
-        onclick="addToCart(${item.id})">+</button>
+        onclick="addToCart('${item.id}')">+</button>
 
     <div class="flex-grow-1 text-center small fw-semibold" style="line-height: 1;">
         ${item.quantity}
     </div>
 
     <button class="btn btn-sm px-2 py-0 border-0 text-muted"
-        onclick="removeFromCart(${item.id})">-</button>
+        onclick="removeFromCart('${item.id}')">-</button>
 </div>
 
     <!-- מחיר -->
@@ -78,10 +79,11 @@ function getCart() {
     // מיזוג כניסות כפולות לאותו מוצר
     const map = {};
     raw.forEach(item => {
-        if (map[item.id] !== undefined) {
-            map[item.id].quantity += item.quantity;
+        const key = String(item.id);
+        if (map[key] !== undefined) {
+            map[key].quantity += item.quantity;
         } else {
-            map[item.id] = { ...item };
+            map[key] = { ...item };
         }
     });
     const merged = Object.values(map);
@@ -91,7 +93,7 @@ function getCart() {
     return merged;
 }
 
-// --- שינוי: פונקציית סנכרון מול השרת ---
+// --- פונקציית סנכרון מול השרת ---
 async function syncCartWithServer(productId, quantity) {
     const username = localStorage.getItem('username');
     if (!username) return; // אורח - אינו מסנכרן מול השרת
@@ -107,7 +109,7 @@ async function syncCartWithServer(productId, quantity) {
     }
 }
 
-/* שמירת מוצרים ב-localStorage וסנכרון ל-MongoDB */
+/* שמירת מוצרים ב-localStorage */
 function saveCart(cartProducts) {
     localStorage.setItem("products", JSON.stringify(cartProducts));
 }
@@ -115,22 +117,23 @@ function saveCart(cartProducts) {
 /* הוספה לעגלה */
 function addToCart(id) {
     let cart = getCart();
-    let originalProduct = products.find(p => p.id === id);
-    let product = cart.find(p => p.id === id);
+    let originalProduct = products.find(p => String(p.id) === String(id));
+    let product = cart.find(p => String(p.id) === String(id));
 
     if (!originalProduct) return;
 
     let stock = originalProduct.stock;
     let newQuantity = 0;
 
-    if (!product && stock > 0) {
+    // --- תיקון: בדיקה שאכן יש לפחות 0.5 במלאי בעת הוספה ראשונה ---
+    if (!product && stock >= 0.5) {
         newQuantity = 0.5;
         cart.push({ id: id, quantity: newQuantity });
     } else if (product && product.quantity + 0.5 <= stock) {
         product.quantity += 0.5;
         newQuantity = product.quantity;
-    } else if ((product && product.quantity + 0.5 > stock) || (!product && stock <= 0)) {
-        alert("המוצר לא זמין יותר ממה שנבחר");
+    } else {
+        alert("המוצר לא זמין בכמות המבוקשת");
         return;
     }
 
@@ -142,7 +145,7 @@ function addToCart(id) {
 /* הסרה מהעגלה */
 function removeFromCart(id) {
     let cart = getCart();
-    let product = cart.find(p => p.id === id);
+    let product = cart.find(p => String(p.id) === String(id));
     if (!product) return;
 
     let newQuantity = 0;
@@ -150,7 +153,7 @@ function removeFromCart(id) {
         product.quantity -= 0.5;
         newQuantity = product.quantity;
     } else {
-        cart = cart.filter(p => p.id !== id);
+        cart = cart.filter(p => String(p.id) !== String(id));
         newQuantity = 0;
     }
 
@@ -162,7 +165,7 @@ function removeFromCart(id) {
 /* מחיקת מוצר כוללת */
 function deleteProduct(id) {
     let cart = getCart();
-    cart = cart.filter(p => p.id !== id);
+    cart = cart.filter(p => String(p.id) !== String(id));
     saveCart(cart);
     syncCartWithServer(id, 0); // כמות 0 מוחקת מ-MongoDB
     renderCart();
