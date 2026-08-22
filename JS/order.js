@@ -1,34 +1,27 @@
 const CART_KEY = "products";
 
-// מחיר
 function formatPrice(price) {
   return "₪" + Number(price).toFixed(2);
 }
 
-// חישוב סכום כולל
 function getTotal(cart) {
   let total = 0;
-
   cart.forEach(item => {
     let product = products.find(p => String(p.id) === String(item.id));
     if (!product) return;
-
     total += product.price * item.quantity;
   });
-
   return total;
 }
 
-// הצגת עגלה בדף Checkout
 function showCart() {
-  let cart = getCart(); // מגיע מ-storage.js
+  let cart = getCart();
   let body = document.getElementById("cartBody");
   let totalBox = document.getElementById("grandTotal");
   let empty = document.getElementById("emptyCart");
   let btn = document.getElementById("submitBtn");
 
   if (!body) return;
-
   body.innerHTML = "";
 
   if (cart.length === 0) {
@@ -46,23 +39,16 @@ function showCart() {
     if (!product) return;
 
     let sum = product.price * item.quantity;
-
     let row = document.createElement("tr");
 
     row.innerHTML = `
       <td></td>
-
       <td>
         <div class="product-cell">
-          <img
-            src="/image/cart/${product.name}.JPG"
-            onerror="this.src='https://via.placeholder.com/50'"
-            class="rounded-circle product-img"
-          >
+          <img src="/image/cart/${product.name}.JPG" onerror="this.src='https://via.placeholder.com/50'" class="rounded-circle product-img">
           <span>${product.name}</span>
         </div>
       </td>
-
       <td>
         <div class="qty-box">
           <button onclick="removeFromCart('${item.id}')">−</button>
@@ -70,40 +56,44 @@ function showCart() {
           <button onclick="addToCart('${item.id}')">+</button>
         </div>
       </td>
-
       <td>${formatPrice(product.price)}</td>
       <td>${formatPrice(sum)}</td>
-
       <td>
         <button class="delete-btn" onclick="deleteProduct('${item.id}')">
           <i class="bi bi-trash"></i>
         </button>
       </td>
     `;
-
     body.appendChild(row);
   });
 
   if (totalBox) totalBox.innerText = formatPrice(getTotal(cart));
 }
 
-// כתובת משלוח
 window.toggleAddress = function () {
   let selected = document.querySelector('input[name="deliveryType"]:checked')?.value;
   let addressBox = document.getElementById("addressBox");
-  let addressInput = document.getElementById("deliveryAddress");
 
-  if (!addressBox || !addressInput) return;
+  if (!addressBox) return;
 
   if (selected === "delivery") {
     addressBox.classList.remove("d-none");
-    addressInput.required = true;
   } else {
     addressBox.classList.add("d-none");
-    addressInput.required = false;
-    addressInput.value = "";
+    document.getElementById("addrCity").value = "";
+    document.getElementById("addrStreet").value = "";
+    document.getElementById("addrHouse").value = "";
+    document.getElementById("addrApt").value = "";
   }
 };
+
+function checkGuestStatus() {
+  const username = localStorage.getItem('username');
+  const guestBox = document.getElementById("guestFieldsBox");
+  if (!username && guestBox) {
+    guestBox.classList.remove("d-none");
+  }
+}
 
 window.tempOrder = null;
 
@@ -111,7 +101,6 @@ function isValidID(id) {
   return /^\d{9}$/.test(id);
 }
 
-// אישור הזמנה - פתיחת פופאפ אשראי
 const submitBtn = document.getElementById("submitBtn");
 if (submitBtn) {
   submitBtn.addEventListener("click", function (e) {
@@ -120,20 +109,50 @@ if (submitBtn) {
     let cart = getCart();
     if (cart.length === 0) return;
 
-    let deliveryType = document.querySelector('input[name="deliveryType"]:checked')?.value;
-    let address = document.getElementById("deliveryAddress")?.value.trim() || "";
+    const username = localStorage.getItem('username');
+    let guestName = "";
+    let guestPhone = "";
 
-    if (deliveryType === "delivery" && address === "") {
-      alert("נא להזין כתובת למשלוח");
-      return;
+    // בדיקת שדות אורח
+    if (!username) {
+      guestName = document.getElementById("guestName")?.value.trim();
+      guestPhone = document.getElementById("guestPhone")?.value.trim();
+
+      if (!guestName || !guestPhone) {
+        alert("כאורח, חובה למלא שם מלא ומספר טלפון");
+        return;
+      }
     }
 
-    window.tempOrder = { cart, deliveryType, address };
+    let deliveryType = document.querySelector('input[name="deliveryType"]:checked')?.value;
+    let fullAddress = "";
+
+    if (deliveryType === "delivery") {
+      let city = document.getElementById("addrCity")?.value.trim();
+      let street = document.getElementById("addrStreet")?.value.trim();
+      let house = document.getElementById("addrHouse")?.value.trim();
+      let apt = document.getElementById("addrApt")?.value.trim();
+
+      if (!city || !street || !house) {
+        alert("נא למלא עיר, רחוב ומספר בית למשלוח");
+        return;
+      }
+
+      fullAddress = `${city}, ${street} ${house}` + (apt ? `, דירה ${apt}` : "");
+    }
+
+    window.tempOrder = {
+      cart,
+      deliveryType,
+      address: fullAddress,
+      guestName,
+      guestPhone
+    };
+
     openPaymentPopup();
   });
 }
 
-// POPUPS
 window.openPaymentPopup = function () {
   const p = document.getElementById("paymentPopup");
   if (p) p.classList.remove("d-none");
@@ -150,7 +169,6 @@ window.closePopup = function () {
   window.location.href = "/html/shop.html";
 };
 
-// תשלום ושליחת ההזמנה לשרת (כולל בדיקת מלאי)
 const paymentForm = document.getElementById("paymentForm");
 if (paymentForm) {
   paymentForm.addEventListener("submit", async function (e) {
@@ -159,22 +177,29 @@ if (paymentForm) {
     if (!this.reportValidity()) return;
 
     let tz = document.getElementById("cardTz").value.trim();
-
     if (!isValidID(tz)) {
       document.getElementById("cardTz").setCustomValidity("יש להזין 9 ספרות");
       document.getElementById("cardTz").reportValidity();
       return;
     }
-
     document.getElementById("cardTz").setCustomValidity("");
 
     let data = window.tempOrder;
     if (!data) return;
 
+    // --- מניעת לחיצות כפולות ---
+    const submitBtn = this.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerText = "מעבד הזמנה...";
+    }
+
     const username = localStorage.getItem('username') || 'אורח';
 
     const orderData = {
       username: username,
+      guestName: data.guestName,
+      guestPhone: data.guestPhone,
       items: data.cart,
       deliveryType: data.deliveryType,
       address: data.address,
@@ -182,7 +207,6 @@ if (paymentForm) {
     };
 
     try {
-      // שליחת ההזמנה לשרת
       const response = await fetch('/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -192,16 +216,25 @@ if (paymentForm) {
       const result = await response.json();
 
       if (!response.ok) {
-        // הצגת השגיאה מהשרת (כולל רשימת המוצרים שחסרים במלאי)
         alert(result.error || "אירעה שגיאה בביצוע ההזמנה");
+        // החזרת הכפתור למצב פעיל במידה והייתה שגיאה
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerText = "שלם עכשיו";
+        }
         return;
       }
 
-      // במקרה של הצלחה:
       localStorage.setItem("lastOrder", JSON.stringify({ ...orderData, id: result.orderId }));
-      localStorage.removeItem(CART_KEY); // ניקוי עגלה מקומית
+      localStorage.removeItem(CART_KEY);
 
       closePaymentPopup();
+
+      // איפוס הכפתור לאחר סגירת הפופאפ
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "שלם עכשיו";
+      }
 
       const popupText = document.getElementById("popupText");
       if (popupText) {
@@ -220,15 +253,18 @@ if (paymentForm) {
     } catch (err) {
       console.error('שגיאה בתקשורת מול השרת ביצירת הזמנה:', err);
       alert('אירעה שגיאה בתקשורת עם השרת, אנא נסה שוב');
+      // החזרת הכפתור למצב פעיל במידה והייתה שגיאה בתקשורת
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "שלם עכשיו";
+      }
     }
   });
 }
-
-// דריסת הפונקציה renderCart מ-storage.js עבור עמוד ה-Checkout
 window.renderCart = showCart;
 
-// טעינת המוצרים מהשרת ולאחר מכן הצגת העגלה בדף
 document.addEventListener("DOMContentLoaded", async function () {
+  checkGuestStatus();
   if (typeof displayUserName === 'function') {
     displayUserName();
   }

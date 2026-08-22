@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>אזור אישי - איילת השדה</title>
+
+    <link rel="icon" href="/image/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/shop.css">
+    <link rel="stylesheet" href="/css/checkout.css">
+
+    <style>
+        /* התאמות עיצוב ייחודיות לעמוד פרופיל */
+        .profile-card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+            margin-bottom: 30px;
+        }
+
+        .profile-header {
+            border-bottom: 2px solid #eaf4ef;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .profile-header h3 {
+            color: rgb(0, 83, 80);
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .info-label {
+            font-weight: 700;
+            color: rgb(0, 83, 80);
+            font-size: 0.95rem;
+        }
+
+        .info-value {
+            color: #333;
+            font-size: 1.05rem;
+            background-color: #f8fbf9;
+            padding: 10px 15px;
+            border-radius: 12px;
+            border: 1px solid #dce8e2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 48px;
+        }
+
+        .accordion-button:not(.collapsed) {
+            background-color: #f8fbf9;
+            color: rgb(0, 83, 80);
+            font-weight: 700;
+        }
+
+        .accordion-button:focus {
+            box-shadow: none;
+            border-color: rgba(0, 83, 80, 0.25);
+        }
+
+        /* איפוס ההסטות הבעייתיות מה-CSS של החנות */
+        .footer-clean {
+            background: rgb(30, 120, 100);
+            color: white;
+        }
+
+        .footer-clean .footer-col-reset {
+            transform: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- בר ראשי -->
+    <div class="sticky-top" dir="ltr">
+        <nav class="navbar navbar-main">
+            <div class="container-fluid d-flex align-items-center justify-content-between flex-nowrap ms-4">
+
+                <!-- פרטי משתמש וכפתורים -->
+                <div class="text-white d-flex align-items-center gap-2 ms-4">
+                    <span id="userName">ישראל ישראלי</span>
+                    <button class="user-btn">
+                        <i class="bi bi-person-circle fs-4"></i>
+                    </button>
+                    <a href="/shop.html" class="btn btn-outline-light ms-3 btn-sm rounded-pill">
+                        <i class="bi bi-shop"></i> חזרה לחנות
+                    </a>
+                </div>
+
+                <!-- לוגו + שם חנות -->
+                <div class="d-flex align-items-center gap-2 me-5 logo-container">
+                    <span class="navbar-brand mb-0 fw-bold fs-4 text-white">איילת השדה</span>
+                    <img src="/image/logo.png" class="rounded-circle border border-white border-1 logo-img">
+                </div>
+
+            </div>
+        </nav>
+    </div>
+
+    <main class="container my-5" dir="rtl">
+
+        <!-- חלק 1: פרטים אישיים -->
+        <div class="profile-card">
+            <div class="profile-header d-flex justify-content-between align-items-center">
+                <h3><i class="bi bi-person-vcard me-2"></i>הפרטים שלי</h3>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="info-label mb-1">שם מלא</div>
+                    <div class="info-value" id="profileName">ישראל ישראלי</div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="info-label mb-1">מספר טלפון</div>
+                    <div class="info-value">
+                        <span id="phoneDisplay">050-1234567</span>
+                        <button class="btn btn-sm btn-link text-success p-0 ms-2" onclick="toggleEditPhone()"
+                            id="editPhoneBtn">
+                            <i class="bi bi-pencil"></i> עריכה
+                        </button>
+                    </div>
+                    <!-- שדה עריכת טלפון (מוסתר כברירת מחדל) -->
+                    <div id="phoneEditBox" class="d-none mt-2">
+                        <div class="input-group input-group-sm">
+                            <input type="tel" id="phoneInput" class="form-control" value="050-1234567">
+                            <button class="btn btn-success" type="button" onclick="savePhone()">שמירה</button>
+                            <button class="btn btn-outline-secondary" type="button"
+                                onclick="toggleEditPhone()">ביטול</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="info-label mb-1">וותק לקוח</div>
+                    <div class="info-value" id="profileMemberSince">לקוח מ-2024</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- חלק 2: היסטוריית הזמנות -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <h3><i class="bi bi-box-seam me-2"></i>היסטוריית הזמנות</h3>
+            </div>
+
+            <!-- אקורדיון להצגת הזמנות -->
+            <div class="accordion" id="ordersAccordion">
+
+                <!-- הזמנה 1 -->
+                <div class="accordion-item mb-3 border rounded-3 overflow-hidden">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#order1001">
+                            <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                                <span><strong>הזמנה #1001</strong> <small
+                                        class="text-muted ms-2">(15/08/2026)</small></span>
+                                <span class="fw-bold text-success me-auto">₪145.50</span>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="order1001" class="accordion-collapse collapse" data-bs-parent="#ordersAccordion">
+                        <div class="accordion-body">
+                            <p class="mb-2"><strong>סוג קבלה:</strong> משלוח עד הבית (הכלנית 12, תל אביב)</p>
+
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle mt-2">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>מוצר</th>
+                                            <th class="text-center">כמות</th>
+                                            <th class="text-center">מחיר ליחידה</th>
+                                            <th class="text-start">סה״כ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>עגבניות חממה</td>
+                                            <td class="text-center">2 ק״ג</td>
+                                            <td class="text-center">₪5.90</td>
+                                            <td class="text-start">₪11.80</td>
+                                        </tr>
+                                        <tr>
+                                            <td>מלפפון ירוק</td>
+                                            <td class="text-center">1.5 ק״ג</td>
+                                            <td class="text-center">₪4.90</td>
+                                            <td class="text-start">₪7.35</td>
+                                        </tr>
+                                        <tr>
+                                            <td>ענבים ירוקים ללא גרעינים</td>
+                                            <td class="text-center">1 מארז</td>
+                                            <td class="text-center">₪19.90</td>
+                                            <td class="text-start">₪19.90</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- הזמנה 2 -->
+                <div class="accordion-item mb-3 border rounded-3 overflow-hidden">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#order1002">
+                            <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                                <span><strong>הזמנה #1002</strong> <small
+                                        class="text-muted ms-2">(21/08/2026)</small></span>
+                                <span class="fw-bold text-success me-auto">₪82.00</span>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="order1002" class="accordion-collapse collapse" data-bs-parent="#ordersAccordion">
+                        <div class="accordion-body">
+                            <p class="mb-2"><strong>סוג קבלה:</strong> איסוף עצמי (משק 46, ברכיה)</p>
+
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle mt-2">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>מוצר</th>
+                                            <th class="text-center">כמות</th>
+                                            <th class="text-center">מחיר ליחידה</th>
+                                            <th class="text-start">סה״כ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>אבטיח על סכין</td>
+                                            <td class="text-center">1 יח'</td>
+                                            <td class="text-center">₪25.00</td>
+                                            <td class="text-start">₪25.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>מארז תפוח עץ חרמון</td>
+                                            <td class="text-center">2 מארזים</td>
+                                            <td class="text-center">₪14.90</td>
+                                            <td class="text-start">₪29.80</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- הודעה במידה ואין הזמנות -->
+            <div id="noOrdersAlert" class="alert alert-warning text-center d-none">
+                עדיין לא ביצעת הזמנות באתר.
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- פוטר נקי ומתוקן -->
+    <footer class="footer-clean mt-5 py-4" dir="rtl">
+        <div class="container">
+            <div class="row align-items-center justify-content-between gy-4">
+
+                <!-- יצירת קשר -->
+                <div class="col-md-6 footer-col-reset text-md-start text-center">
+                    <h6 class="fw-bold mb-3 text-accent">יצירת קשר</h6>
+                    <div class="d-flex flex-column gap-2 small">
+                        <div><i class="bi bi-geo-fill me-2 text-accent"></i> משק 46, ברכיה</div>
+                        <div><i class="bi bi-telephone-fill me-2 text-accent"></i> 055-2652245</div>
+                        <div><i class="bi bi-envelope-fill me-2 text-accent"></i> info@ayelet.co.il</div>
+                        <div><i class="bi bi-clock-fill me-2 text-accent"></i> א׳–ה׳ 09:00–20:00 | ו׳ 09:00–15:00</div>
+                    </div>
+                </div>
+
+                <!-- לוגו + אודות -->
+                <div
+                    class="col-md-5 footer-col-reset text-md-end text-center d-flex align-items-center justify-content-md-end justify-content-center gap-3">
+                    <div>
+                        <span class="fw-bold fs-5 d-block text-white">איילת השדה</span>
+                        <p class="small mt-1 text-white-50 mb-0">
+                            עסק משפחתי, דור שלישי לחקלאות ישראלית. תוצרת איכותית ישר מהחקלאי לצרכן.
+                        </p>
+                    </div>
+                    <img src="/image/logo.png" class="rounded-circle border border-white footer-logo-img flex-shrink-0">
+                </div>
+
+            </div>
+
+            <hr class="border-light opacity-25 my-3">
+
+            <div class="text-center small text-white-50">
+                © 2026 איילת השדה
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/storage.js"></script>
+    <script src="/js/shop.js"></script>
+    <script src="/js/profile.js"></script>
+
+</body>
+
+</html>

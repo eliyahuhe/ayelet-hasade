@@ -26,13 +26,11 @@ function renderCart() {
     }
 
     cart.forEach(item => {
-        // --- תיקון: השוואה גמישה כמחרוזות ---
         let product = products.find(p => String(p.id) === String(item.id));
         if (!product) return;
         total += item.quantity * product.price;
         container.innerHTML += `<div class="d-flex align-items-center border-bottom py-3 position-relative" style="padding-left: 35px;">
     
-    <!-- כפתור מחיקה -->
    <button class="btn p-0 text-danger position-absolute"
         style="left: 5px; top: 50%; transform: translateY(-50%); text-decoration: none;"
         onclick="deleteProduct('${item.id}')"
@@ -40,15 +38,12 @@ function renderCart() {
     <i class="bi bi-trash"></i>
 </button>
 
-    <!-- תמונה -->
     <img src="/image/cart/${product.name}.JPG" onerror="this.onerror=null; this.src='https://via.placeholder.com/50';" alt="${product.name}" class="rounded-circle flex-shrink-0" style="width: 38px; height: 38px; object-fit: cover; margin-left: 10px;">
 
-    <!-- שם המוצר -->
     <div class="fw-semibold small text-dark flex-grow-1 text-truncate" style="min-width: 0;" title="${product.name}">
         ${product.name}
     </div>
 
-    <!-- פלוס/מינוס -->
    <div class="d-flex align-items-center border rounded-pill flex-shrink-0 bg-light ms-2 qty-control">
     <button class="btn btn-sm px-2 py-0 border-0 text-muted"
         onclick="addToCart('${item.id}')">+</button>
@@ -61,7 +56,6 @@ function renderCart() {
         onclick="removeFromCart('${item.id}')">-</button>
 </div>
 
-    <!-- מחיר -->
     <div class="fw-bold small text-end flex-shrink-0" style="color:rgb(0, 83, 80); width: 45px;">
         ₪${parseFloat(item.quantity * product.price).toFixed(2)}
     </div>
@@ -73,10 +67,8 @@ function renderCart() {
     if (cartSum) cartSum.textContent = "₪" + total.toFixed(2);
 }
 
-/* קבלת מוצרים מ-DATA */
 function getCart() {
     const raw = JSON.parse(localStorage.getItem("products")) || [];
-    // מיזוג כניסות כפולות לאותו מוצר
     const map = {};
     raw.forEach(item => {
         const key = String(item.id);
@@ -93,10 +85,9 @@ function getCart() {
     return merged;
 }
 
-// --- פונקציית סנכרון מול השרת ---
 async function syncCartWithServer(productId, quantity) {
     const username = localStorage.getItem('username');
-    if (!username) return; // אורח - אינו מסנכרן מול השרת
+    if (!username) return;
 
     try {
         await fetch('/cart/update', {
@@ -109,12 +100,10 @@ async function syncCartWithServer(productId, quantity) {
     }
 }
 
-/* שמירת מוצרים ב-localStorage */
 function saveCart(cartProducts) {
     localStorage.setItem("products", JSON.stringify(cartProducts));
 }
 
-/* הוספה לעגלה */
 function addToCart(id) {
     let cart = getCart();
     let originalProduct = products.find(p => String(p.id) === String(id));
@@ -125,7 +114,6 @@ function addToCart(id) {
     let stock = originalProduct.stock;
     let newQuantity = 0;
 
-    // --- תיקון: בדיקה שאכן יש לפחות 0.5 במלאי בעת הוספה ראשונה ---
     if (!product && stock >= 0.5) {
         newQuantity = 0.5;
         cart.push({ id: id, quantity: newQuantity });
@@ -139,10 +127,11 @@ function addToCart(id) {
 
     saveCart(cart);
     syncCartWithServer(id, newQuantity);
-    renderCart();
+    if (typeof renderCart === 'function') {
+        renderCart();
+    }
 }
 
-/* הסרה מהעגלה */
 function removeFromCart(id) {
     let cart = getCart();
     let product = cart.find(p => String(p.id) === String(id));
@@ -159,14 +148,17 @@ function removeFromCart(id) {
 
     saveCart(cart);
     syncCartWithServer(id, newQuantity);
-    renderCart();
+    if (typeof renderCart === 'function') {
+        renderCart();
+    }
 }
 
-/* מחיקת מוצר כוללת */
 function deleteProduct(id) {
     let cart = getCart();
     cart = cart.filter(p => String(p.id) !== String(id));
     saveCart(cart);
-    syncCartWithServer(id, 0); // כמות 0 מוחקת מ-MongoDB
-    renderCart();
+    syncCartWithServer(id, 0);
+    if (typeof renderCart === 'function') {
+        renderCart();
+    }
 }
