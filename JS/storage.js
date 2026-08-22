@@ -26,17 +26,14 @@ function renderCart() {
     }
 
     cart.forEach(item => {
-        // חיפוש המוצר המקורי לפי ID (תמיכה ב-_id של מונגו או id ישן)
         let product = products.find(p => (p._id === item.id || p.id === item.id));
         if (!product) return;
 
         total += item.quantity * product.price;
 
-        // קביעת טקסט המידה לתצוגה בעגלה (קיצור של יחידות/מארזים ל"יח'")
         let unitText = product.unit || 'ק״ג';
         if (unitText === 'יחידות' || unitText === 'מארזים') unitText = "יח'";
 
-        // עיצוב הכמות (ללא אפסים מיותרים, למשל 1.5 במקום 1.50)
         let displayQuantity = parseFloat(item.quantity);
 
         container.innerHTML += `<div class="d-flex align-items-center border-bottom py-3 position-relative" style="padding-left: 35px;">
@@ -96,12 +93,36 @@ function getCart() {
     return merged;
 }
 
-async function syncCartWithServer(productId, quantity) {
-    // שלפנו את שם המשתמש מהעוגיות למקרה שאין ב-localStorage
+// טעינת עגלה התחלתית מ-MongoDB עבור משתמש מחובר
+async function loadUserCartFromServer() {
     const cookieString = document.cookie.split(';').find(row => row.trim().startsWith('username='));
-    const username = cookieString ? decodeURIComponent(cookieString.split('=')[1]) : null;
+    const username = cookieString ? decodeURIComponent(cookieString.split('=')[1]) : localStorage.getItem('username');
 
-    if (!username) return; // אורח - אינו מסנכרן מול השרת
+    if (!username) return;
+
+    try {
+        const response = await fetch('/cart');
+        if (response.ok) {
+            const serverCart = await response.json();
+            if (Array.isArray(serverCart)) {
+                const formattedCart = serverCart.map(item => ({
+                    id: item.productId || item.id,
+                    quantity: item.quantity
+                }));
+                localStorage.setItem("products", JSON.stringify(formattedCart));
+                if (typeof renderCart === 'function') renderCart();
+            }
+        }
+    } catch (err) {
+        console.error('שגיאה בשליפת עגלת המשתמש מהשרת:', err);
+    }
+}
+
+async function syncCartWithServer(productId, quantity) {
+    const cookieString = document.cookie.split(';').find(row => row.trim().startsWith('username='));
+    const username = cookieString ? decodeURIComponent(cookieString.split('=')[1]) : localStorage.getItem('username');
+
+    if (!username) return;
 
     try {
         await fetch('/cart/update', {
@@ -125,10 +146,9 @@ function addToCart(id) {
 
     if (!originalProduct) return;
 
-    let stock = originalProduct.stock !== undefined ? originalProduct.stock : 100; // אם אין מלאי מוגדר, מניחים שיש הרבה
+    let stock = originalProduct.stock !== undefined ? originalProduct.stock : 100;
     let newQuantity = 0;
 
-    // קביעת קפיצות הכמות לפי סוג היחידה
     let amountToAdd = (originalProduct.unit === 'ק״ג' || !originalProduct.unit) ? 0.5 : 1;
 
     if (!product && stock > 0) {
@@ -183,3 +203,16 @@ function deleteProduct(id) {
         renderCart();
     }
 }
+
+// פונקציית התנתקות להרצה בלחיצה על כפתור Logout
+function logout() {
+    localStorage.removeItem('username');
+    localStorage.removeItem('products');
+    document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    window.location.href = '/html/login.html';
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadUserCartFromServer();
+});

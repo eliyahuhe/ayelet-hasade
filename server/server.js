@@ -259,6 +259,22 @@ app.get('/api/user/orders', async (req, res) => {
 
 // ----------------------------------------------------
 
+// שליפת העגלה השמורה של המשתמש מהשרת
+app.get('/cart', async (req, res) => {
+  try {
+    const username = req.cookies?.username || req.query.username;
+    if (!username) return res.status(200).json([]);
+
+    const db = getDB();
+    const user = await db.collection('customers').findOne({ username: username });
+
+    res.status(200).json(user?.cart || []);
+  } catch (error) {
+    console.error('Error fetching cart:', error);
+    res.status(500).json({ error: 'שגיאה בשליפת העגלה' });
+  }
+});
+
 // 3. עדכון עגלה
 app.post('/cart/update', async (req, res) => {
   try {
@@ -269,20 +285,19 @@ app.post('/cart/update', async (req, res) => {
 
     const db = getDB();
     const customersCollection = db.collection('customers');
-    const numProductId = Number(productId);
 
     if (quantity <= 0) {
-      await customersCollection.updateOne({ username: username }, { $pull: { cart: { productId: numProductId } } });
+      await customersCollection.updateOne({ username: username }, { $pull: { cart: { productId: productId } } });
     } else {
       const result = await customersCollection.updateOne(
-        { username: username, "cart.productId": numProductId },
+        { username: username, "cart.productId": productId },
         { $set: { "cart.$.quantity": quantity } }
       );
 
       if (result.matchedCount === 0) {
         await customersCollection.updateOne(
           { username: username },
-          { $push: { cart: { productId: numProductId, quantity: quantity } } }
+          { $push: { cart: { productId: productId, quantity: quantity } } }
         );
       }
     }
@@ -469,7 +484,6 @@ app.delete('/products/:id', async (req, res) => {
 // ניהול משתמשים / לקוחות (API)
 // ==========================================
 
-// 1. קבלת כל הלקוחות
 app.get('/users', async (req, res) => {
   try {
     const db = getDB();
@@ -483,7 +497,6 @@ app.get('/users', async (req, res) => {
   }
 });
 
-// 2. הוספת לקוח חדש ידנית
 app.post('/users', async (req, res) => {
   try {
     const db = getDB();
@@ -505,7 +518,6 @@ app.post('/users', async (req, res) => {
   }
 });
 
-// 3. עדכון פרטי לקוח קיים
 app.put('/users/:id', async (req, res) => {
   try {
     const db = getDB();
@@ -535,7 +547,6 @@ app.put('/users/:id', async (req, res) => {
   }
 });
 
-// 4. מחיקת לקוח מהמערכת
 app.delete('/users/:id', async (req, res) => {
   try {
     const db = getDB();
