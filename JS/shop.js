@@ -2,10 +2,10 @@ let products = [];
 
 // פונקציה להצגת שם המשתמש
 function displayUserName() {
-    const userName = localStorage.getItem('name') || "אורח";
+    const userName = localStorage.getItem('username') || "אורח";
     const userNameElement = document.getElementById("userName");
     if (userNameElement) {
-        userNameElement.textContent = "שלום, " + userName;
+        userNameElement.textContent = "HI, " + userName;
     }
 }
 

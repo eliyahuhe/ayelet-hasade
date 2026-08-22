@@ -13,9 +13,14 @@ async function loadUserProfile() {
     }
     const data = await res.json();
 
-    // עדכון התצוגה בעמוד
-    document.getElementById('userName').innerText = data.firstName || data.username;
-    document.getElementById('profileName').innerText = `${data.firstName || ''} (${data.username})`;
+    // הצגת שם משתמש בבר העליון
+    document.getElementById('userName').innerText = `HI, ${data.username}`;
+
+    // הצגת אימייל וטלפון
+    const emailVal = data.email || 'לא הוגדר';
+    document.getElementById('emailDisplay').innerText = emailVal;
+    document.getElementById('emailInput').value = emailVal;
+
     document.getElementById('phoneDisplay').innerText = data.phone;
     document.getElementById('phoneInput').value = data.phone;
 
@@ -27,11 +32,39 @@ async function loadUserProfile() {
       document.getElementById('profileMemberSince').innerText = 'לקוח רשום';
     }
   } catch (err) {
-    console.error('שגיאה שטעינת פרטי פרופיל:', err);
+    console.error('שגיאה בטעינת פרטי פרופיל:', err);
   }
 }
 
-// 2. שמירת טלפון מעודכן ב-DB
+// 2. שמירת אימייל מעודכן ב-DB
+async function saveEmail() {
+  const newEmail = document.getElementById('emailInput').value.trim();
+  if (!newEmail || !newEmail.includes('@')) return alert('נא להזין כתובת אימייל תקינה');
+
+  try {
+    const res = await fetch('/api/user/email', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: newEmail })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      document.getElementById('emailDisplay').innerText = newEmail;
+      toggleEditEmail();
+    } else {
+      alert(data.error || 'שגיאה בעדכון האימייל');
+    }
+  } catch (err) {
+    console.error('שגיאה בעדכון אימייל:', err);
+  }
+}
+
+function toggleEditEmail() {
+  document.getElementById('emailEditBox').classList.toggle('d-none');
+}
+
+// 3. שמירת טלפון מעודכן ב-DB
 async function savePhone() {
   const newPhone = document.getElementById('phoneInput').value.trim();
   if (!newPhone) return alert('נא להזין מספר טלפון תקין');
@@ -59,7 +92,7 @@ function toggleEditPhone() {
   document.getElementById('phoneEditBox').classList.toggle('d-none');
 }
 
-// 3. טעינת היסטוריית ההזמנות מה-DB
+// 4. טעינת היסטוריית ההזמנות מה-DB
 async function loadUserOrders() {
   const accordion = document.getElementById('ordersAccordion');
   const noOrdersAlert = document.getElementById('noOrdersAlert');

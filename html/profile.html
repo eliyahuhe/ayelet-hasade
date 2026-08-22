@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="/css/checkout.css">
 
     <style>
-        /* התאמות עיצוב ייחודיות לעמוד פרופיל */
         .profile-card {
             background: white;
             border-radius: 24px;
@@ -64,7 +63,6 @@
             border-color: rgba(0, 83, 80, 0.25);
         }
 
-        /* איפוס ההסטות הבעייתיות מה-CSS של החנות */
         .footer-clean {
             background: rgb(30, 120, 100);
             color: white;
@@ -85,11 +83,11 @@
 
                 <!-- פרטי משתמש וכפתורים -->
                 <div class="text-white d-flex align-items-center gap-2 ms-4">
-                    <span id="userName">ישראל ישראלי</span>
+                    <span id="userName">אורח</span>
                     <button class="user-btn">
                         <i class="bi bi-person-circle fs-4"></i>
                     </button>
-                    <a href="/shop.html" class="btn btn-outline-light ms-3 btn-sm rounded-pill">
+                    <a href="/html/shop.html" class="btn btn-outline-light ms-3 btn-sm rounded-pill">
                         <i class="bi bi-shop"></i> חזרה לחנות
                     </a>
                 </div>
@@ -113,11 +111,28 @@
             </div>
 
             <div class="row g-3">
+                <!-- אימייל + עריכת אימייל -->
                 <div class="col-md-4">
-                    <div class="info-label mb-1">שם מלא</div>
-                    <div class="info-value" id="profileName">ישראל ישראלי</div>
+                    <div class="info-label mb-1">דואר אלקטרוני</div>
+                    <div class="info-value">
+                        <span id="emailDisplay">user@example.com</span>
+                        <button class="btn btn-sm btn-link text-success p-0 ms-2" onclick="toggleEditEmail()"
+                            id="editEmailBtn">
+                            <i class="bi bi-pencil"></i> עריכה
+                        </button>
+                    </div>
+                    <!-- שדה עריכת אימייל -->
+                    <div id="emailEditBox" class="d-none mt-2">
+                        <div class="input-group input-group-sm">
+                            <input type="email" id="emailInput" class="form-control" value="user@example.com">
+                            <button class="btn btn-success" type="button" onclick="saveEmail()">שמירה</button>
+                            <button class="btn btn-outline-secondary" type="button"
+                                onclick="toggleEditEmail()">ביטול</button>
+                        </div>
+                    </div>
                 </div>
 
+                <!-- טלפון + עריכה -->
                 <div class="col-md-4">
                     <div class="info-label mb-1">מספר טלפון</div>
                     <div class="info-value">
@@ -127,7 +142,7 @@
                             <i class="bi bi-pencil"></i> עריכה
                         </button>
                     </div>
-                    <!-- שדה עריכת טלפון (מוסתר כברירת מחדל) -->
+                    <!-- שדה עריכת טלפון -->
                     <div id="phoneEditBox" class="d-none mt-2">
                         <div class="input-group input-group-sm">
                             <input type="tel" id="phoneInput" class="form-control" value="050-1234567">
@@ -152,125 +167,21 @@
             </div>
 
             <!-- אקורדיון להצגת הזמנות -->
-            <div class="accordion" id="ordersAccordion">
-
-                <!-- הזמנה 1 -->
-                <div class="accordion-item mb-3 border rounded-3 overflow-hidden">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#order1001">
-                            <div class="d-flex justify-content-between align-items-center w-100 me-3">
-                                <span><strong>הזמנה #1001</strong> <small
-                                        class="text-muted ms-2">(15/08/2026)</small></span>
-                                <span class="fw-bold text-success me-auto">₪145.50</span>
-                            </div>
-                        </button>
-                    </h2>
-                    <div id="order1001" class="accordion-collapse collapse" data-bs-parent="#ordersAccordion">
-                        <div class="accordion-body">
-                            <p class="mb-2"><strong>סוג קבלה:</strong> משלוח עד הבית (הכלנית 12, תל אביב)</p>
-
-                            <div class="table-responsive">
-                                <table class="table table-sm align-middle mt-2">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>מוצר</th>
-                                            <th class="text-center">כמות</th>
-                                            <th class="text-center">מחיר ליחידה</th>
-                                            <th class="text-start">סה״כ</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>עגבניות חממה</td>
-                                            <td class="text-center">2 ק״ג</td>
-                                            <td class="text-center">₪5.90</td>
-                                            <td class="text-start">₪11.80</td>
-                                        </tr>
-                                        <tr>
-                                            <td>מלפפון ירוק</td>
-                                            <td class="text-center">1.5 ק״ג</td>
-                                            <td class="text-center">₪4.90</td>
-                                            <td class="text-start">₪7.35</td>
-                                        </tr>
-                                        <tr>
-                                            <td>ענבים ירוקים ללא גרעינים</td>
-                                            <td class="text-center">1 מארז</td>
-                                            <td class="text-center">₪19.90</td>
-                                            <td class="text-start">₪19.90</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-                <!-- הזמנה 2 -->
-                <div class="accordion-item mb-3 border rounded-3 overflow-hidden">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#order1002">
-                            <div class="d-flex justify-content-between align-items-center w-100 me-3">
-                                <span><strong>הזמנה #1002</strong> <small
-                                        class="text-muted ms-2">(21/08/2026)</small></span>
-                                <span class="fw-bold text-success me-auto">₪82.00</span>
-                            </div>
-                        </button>
-                    </h2>
-                    <div id="order1002" class="accordion-collapse collapse" data-bs-parent="#ordersAccordion">
-                        <div class="accordion-body">
-                            <p class="mb-2"><strong>סוג קבלה:</strong> איסוף עצמי (משק 46, ברכיה)</p>
-
-                            <div class="table-responsive">
-                                <table class="table table-sm align-middle mt-2">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>מוצר</th>
-                                            <th class="text-center">כמות</th>
-                                            <th class="text-center">מחיר ליחידה</th>
-                                            <th class="text-start">סה״כ</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>אבטיח על סכין</td>
-                                            <td class="text-center">1 יח'</td>
-                                            <td class="text-center">₪25.00</td>
-                                            <td class="text-start">₪25.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>מארז תפוח עץ חרמון</td>
-                                            <td class="text-center">2 מארזים</td>
-                                            <td class="text-center">₪14.90</td>
-                                            <td class="text-start">₪29.80</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+            <div class="accordion" id="ordersAccordion"></div>
 
             <!-- הודעה במידה ואין הזמנות -->
             <div id="noOrdersAlert" class="alert alert-warning text-center d-none">
                 עדיין לא ביצעת הזמנות באתר.
             </div>
-
         </div>
 
     </main>
 
-    <!-- פוטר נקי ומתוקן -->
+    <!-- פוטר -->
     <footer class="footer-clean mt-5 py-4" dir="rtl">
         <div class="container">
             <div class="row align-items-center justify-content-between gy-4">
 
-                <!-- יצירת קשר -->
                 <div class="col-md-6 footer-col-reset text-md-start text-center">
                     <h6 class="fw-bold mb-3 text-accent">יצירת קשר</h6>
                     <div class="d-flex flex-column gap-2 small">
@@ -281,7 +192,6 @@
                     </div>
                 </div>
 
-                <!-- לוגו + אודות -->
                 <div
                     class="col-md-5 footer-col-reset text-md-end text-center d-flex align-items-center justify-content-md-end justify-content-center gap-3">
                     <div>

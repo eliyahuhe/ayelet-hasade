@@ -22,9 +22,9 @@ function requireAdmin(req, res, next) {
 // 1. נתיב הרשמה
 app.post('/signup', async (req, res) => {
   try {
-    const { firstName, username, phone, password } = req.body;
+    const { email, username, phone, password } = req.body;
 
-    if (!firstName || !username || !phone || !password) {
+    if (!email || !username || !phone || !password) {
       return res.status(400).json({ error: 'חסרים שדות חובה' });
     }
 
@@ -40,7 +40,7 @@ app.post('/signup', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const newCustomer = {
-      firstName: firstName,
+      email: email,
       username: username,
       phone: phone,
       password: hashedPassword,
@@ -57,7 +57,7 @@ app.post('/signup', async (req, res) => {
     res.status(201).json({
       message: 'המשתמש נרשם בהצלחה',
       userId: result.insertedId,
-      firstName: newCustomer.firstName,
+      email: newCustomer.email,
       username: newCustomer.username,
       role: newCustomer.role,
       cart: []
@@ -98,7 +98,7 @@ app.post('/login', async (req, res) => {
 
     res.status(200).json({
       message: 'התחברות הצליחה',
-      firstName: user.firstName,
+      email: user.email,
       username: user.username,
       role: userRole,
       cart: user.cart || []
@@ -133,13 +133,39 @@ app.get('/api/user/profile', async (req, res) => {
     }
 
     res.status(200).json({
-      firstName: user.firstName,
+      email: user.email || 'לא הוגדר',
       username: user.username,
       phone: user.phone || 'לא הוגדר',
       createdAt: user.createdAt
     });
   } catch (error) {
     console.error('Error fetching profile:', error);
+    res.status(500).json({ error: 'שגיאת שרת פנימית' });
+  }
+});
+
+// עדכון אימייל של המשתמש
+app.put('/api/user/email', async (req, res) => {
+  try {
+    const username = req.cookies?.username || req.body.username;
+    const { email } = req.body;
+
+    if (!username) {
+      return res.status(401).json({ error: 'משתמש לא מחובר' });
+    }
+    if (!email) {
+      return res.status(400).json({ error: 'חסרה כתובת אימייל' });
+    }
+
+    const db = getDB();
+    await db.collection('customers').updateOne(
+      { username: username },
+      { $set: { email: email } }
+    );
+
+    res.status(200).json({ message: 'האימייל עודכן בהצלחה', email });
+  } catch (error) {
+    console.error('Error updating email:', error);
     res.status(500).json({ error: 'שגיאת שרת פנימית' });
   }
 });
@@ -171,7 +197,6 @@ app.put('/api/user/phone', async (req, res) => {
 });
 
 // שליפת היסטוריית ההזמנות של המשתמש
-// שליפת היסטוריית ההזמנות של המשתמש עם הצלבה מול המלאי (stock)
 app.get('/api/user/orders', async (req, res) => {
   try {
     const username = req.cookies?.username || req.query.username;
@@ -187,13 +212,11 @@ app.get('/api/user/orders', async (req, res) => {
 
     const stock = await db.collection('stock').find({}).toArray();
 
-    // מפת עזר לשליפה מהירה של מוצר לפי ID
     const stockMap = {};
     stock.forEach(prod => {
       stockMap[Number(prod.id)] = prod;
     });
 
-    // העשרת הפריטים בהזמנה בשם ובמחיר מתוך ה-stock
     const enrichedOrders = orders.map(order => {
       const enrichedItems = (order.items || []).map(item => {
         const prodId = Number(item.id || item.productId);
@@ -289,7 +312,7 @@ app.get('/products', async (req, res) => {
   }
 });
 
-// 6. ביצוע הזמנה: בדיקת מלאי מרוכזת ושמירה ב-MongoDB
+// 6. ביצוע הזמנה
 app.post('/orders', async (req, res) => {
   try {
     const { username, guestName, guestPhone, items, deliveryType, address, total } = req.body;
@@ -304,7 +327,6 @@ app.post('/orders', async (req, res) => {
 
     const outOfStockItems = [];
 
-    // א. בדיקת מלאי לכל המוצרים
     for (const item of items) {
       const numProductId = Number(item.id);
       const product = await stockCollection.findOne({ id: numProductId });
@@ -318,14 +340,12 @@ app.post('/orders', async (req, res) => {
       }
     }
 
-    // ב. אם יש מוצרים שחסרים - החזרת הודעה מרוכזת
     if (outOfStockItems.length > 0) {
       return res.status(400).json({
         error: 'חלק מהמוצרים אינם זמינים במלאי בכמות המבוקשת:\n\n' + outOfStockItems.join('\n')
       });
     }
 
-    // ג. הפחתת המלאי לכל המוצרים
     for (const item of items) {
       const numProductId = Number(item.id);
       await stockCollection.updateOne(
@@ -334,7 +354,6 @@ app.post('/orders', async (req, res) => {
       );
     }
 
-    // ד. שמירת ההזמנה
     const orderId = "ORD-" + Date.now();
     const newOrder = {
       orderId: orderId,
@@ -350,7 +369,6 @@ app.post('/orders', async (req, res) => {
 
     await ordersCollection.insertOne(newOrder);
 
-    // ה. ניקוי עגלה בשרת במידה ומדובר במשתמש רשום
     if (username && username !== 'אורח') {
       await db.collection('customers').updateOne(
         { username: username },

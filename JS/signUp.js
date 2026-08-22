@@ -1,6 +1,6 @@
 async function signUp(event) {
     event.preventDefault();
-    const firstName = document.getElementById('firstName').value;
+    const email = document.getElementById('email').value;
     const user = document.getElementById('username').value;
     const phone = document.getElementById('phone').value;
     const pass = document.getElementById('password').value;
@@ -18,7 +18,7 @@ async function signUp(event) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                firstName: firstName,
+                email: email,
                 username: user,
                 phone: phone,
                 password: pass
