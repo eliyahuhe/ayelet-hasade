@@ -26,9 +26,19 @@ function renderCart() {
     }
 
     cart.forEach(item => {
-        let product = products.find(p => String(p.id) === String(item.id));
+        // חיפוש המוצר המקורי לפי ID (תמיכה ב-_id של מונגו או id ישן)
+        let product = products.find(p => (p._id === item.id || p.id === item.id));
         if (!product) return;
+
         total += item.quantity * product.price;
+
+        // קביעת טקסט המידה לתצוגה בעגלה (קיצור של יחידות/מארזים ל"יח'")
+        let unitText = product.unit || 'ק״ג';
+        if (unitText === 'יחידות' || unitText === 'מארזים') unitText = "יח'";
+
+        // עיצוב הכמות (ללא אפסים מיותרים, למשל 1.5 במקום 1.50)
+        let displayQuantity = parseFloat(item.quantity);
+
         container.innerHTML += `<div class="d-flex align-items-center border-bottom py-3 position-relative" style="padding-left: 35px;">
     
    <button class="btn p-0 text-danger position-absolute"
@@ -38,7 +48,8 @@ function renderCart() {
     <i class="bi bi-trash"></i>
 </button>
 
-    <img src="/image/cart/${product.name}.JPG" onerror="this.onerror=null; this.src='https://via.placeholder.com/50';" alt="${product.name}" class="rounded-circle flex-shrink-0" style="width: 38px; height: 38px; object-fit: cover; margin-left: 10px;">
+    <!-- תמונה -->
+    <img src="${product.image}" onerror="this.onerror=null; this.src='https://via.placeholder.com/50';" alt="${product.name}" class="rounded-circle flex-shrink-0" style="width: 38px; height: 38px; object-fit: cover; margin-left: 10px;">
 
     <div class="fw-semibold small text-dark flex-grow-1 text-truncate" style="min-width: 0;" title="${product.name}">
         ${product.name}
@@ -48,8 +59,8 @@ function renderCart() {
     <button class="btn btn-sm px-2 py-0 border-0 text-muted"
         onclick="addToCart('${item.id}')">+</button>
 
-    <div class="flex-grow-1 text-center small fw-semibold" style="line-height: 1;">
-        ${item.quantity}
+    <div class="flex-grow-1 text-center small fw-semibold" style="line-height: 1; padding: 0 4px;">
+        ${displayQuantity} <span style="font-size: 0.8em; color:#666;">${unitText}</span>
     </div>
 
     <button class="btn btn-sm px-2 py-0 border-0 text-muted"
@@ -86,8 +97,11 @@ function getCart() {
 }
 
 async function syncCartWithServer(productId, quantity) {
-    const username = localStorage.getItem('username');
-    if (!username) return;
+    // שלפנו את שם המשתמש מהעוגיות למקרה שאין ב-localStorage
+    const cookieString = document.cookie.split(';').find(row => row.trim().startsWith('username='));
+    const username = cookieString ? decodeURIComponent(cookieString.split('=')[1]) : null;
+
+    if (!username) return; // אורח - אינו מסנכרן מול השרת
 
     try {
         await fetch('/cart/update', {
@@ -106,22 +120,25 @@ function saveCart(cartProducts) {
 
 function addToCart(id) {
     let cart = getCart();
-    let originalProduct = products.find(p => String(p.id) === String(id));
-    let product = cart.find(p => String(p.id) === String(id));
+    let originalProduct = products.find(p => (p._id === id || p.id === id));
+    let product = cart.find(p => p.id === id);
 
     if (!originalProduct) return;
 
-    let stock = originalProduct.stock;
+    let stock = originalProduct.stock !== undefined ? originalProduct.stock : 100; // אם אין מלאי מוגדר, מניחים שיש הרבה
     let newQuantity = 0;
 
-    if (!product && stock >= 0.5) {
-        newQuantity = 0.5;
+    // קביעת קפיצות הכמות לפי סוג היחידה
+    let amountToAdd = (originalProduct.unit === 'ק״ג' || !originalProduct.unit) ? 0.5 : 1;
+
+    if (!product && stock > 0) {
+        newQuantity = amountToAdd;
         cart.push({ id: id, quantity: newQuantity });
-    } else if (product && product.quantity + 0.5 <= stock) {
-        product.quantity += 0.5;
+    } else if (product && product.quantity + amountToAdd <= stock) {
+        product.quantity += amountToAdd;
         newQuantity = product.quantity;
-    } else {
-        alert("המוצר לא זמין בכמות המבוקשת");
+    } else if ((product && product.quantity + amountToAdd > stock) || (!product && stock <= 0)) {
+        alert("המוצר לא זמין בכמות שביקשת במלאי");
         return;
     }
 
@@ -134,12 +151,16 @@ function addToCart(id) {
 
 function removeFromCart(id) {
     let cart = getCart();
-    let product = cart.find(p => String(p.id) === String(id));
-    if (!product) return;
+    let product = cart.find(p => p.id === id);
+    let originalProduct = products.find(p => (p._id === id || p.id === id));
 
+    if (!product || !originalProduct) return;
+
+    let amountToRemove = (originalProduct.unit === 'ק״ג' || !originalProduct.unit) ? 0.5 : 1;
     let newQuantity = 0;
-    if (product.quantity > 0.5) {
-        product.quantity -= 0.5;
+
+    if (product.quantity > amountToRemove) {
+        product.quantity -= amountToRemove;
         newQuantity = product.quantity;
     } else {
         cart = cart.filter(p => String(p.id) !== String(id));

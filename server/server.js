@@ -3,6 +3,7 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const { connectDB, getDB, closeDB } = require('./db');
+const { ObjectId } = require('mongodb');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,7 +45,7 @@ app.post('/signup', async (req, res) => {
       username: username,
       phone: phone,
       password: hashedPassword,
-      defaultAddress: '', // כתובת ברירת מחדל ריקה בהתחלה
+      defaultAddress: '',
       createdAt: new Date(),
       cart: [],
       role: 'customer'
@@ -115,7 +116,6 @@ app.post('/login', async (req, res) => {
 // נתיבים לאזור אישי (Profile API)
 // ----------------------------------------------------
 
-// שליפת פרטי משתמש
 app.get('/api/user/profile', async (req, res) => {
   try {
     const username = req.cookies?.username || req.query.username;
@@ -137,7 +137,7 @@ app.get('/api/user/profile', async (req, res) => {
       email: user.email || 'לא הוגדר',
       username: user.username,
       phone: user.phone || 'לא הוגדר',
-      defaultAddress: user.defaultAddress || '', // החזרת כתובת ברירת המחדל
+      defaultAddress: user.defaultAddress || '',
       createdAt: user.createdAt
     });
   } catch (error) {
@@ -146,7 +146,6 @@ app.get('/api/user/profile', async (req, res) => {
   }
 });
 
-// עדכון אימייל של המשתמש
 app.put('/api/user/email', async (req, res) => {
   try {
     const username = req.cookies?.username || req.body.username;
@@ -168,7 +167,6 @@ app.put('/api/user/email', async (req, res) => {
   }
 });
 
-// עדכון מספר טלפון של המשתמש
 app.put('/api/user/phone', async (req, res) => {
   try {
     const username = req.cookies?.username || req.body.username;
@@ -190,7 +188,6 @@ app.put('/api/user/phone', async (req, res) => {
   }
 });
 
-// עדכון כתובת ברירת מחדל למשלוח
 app.put('/api/user/address', async (req, res) => {
   try {
     const username = req.cookies?.username || req.body.username;
@@ -211,7 +208,6 @@ app.put('/api/user/address', async (req, res) => {
   }
 });
 
-// שליפת היסטוריית ההזמנות של המשתמש
 app.get('/api/user/orders', async (req, res) => {
   try {
     const username = req.cookies?.username || req.query.username;
@@ -343,14 +339,18 @@ app.post('/orders', async (req, res) => {
     const outOfStockItems = [];
 
     for (const item of items) {
-      const numProductId = Number(item.id);
-      const product = await stockCollection.findOne({ id: numProductId });
+      const query = ObjectId.isValid(item.id)
+        ? { _id: new ObjectId(item.id) }
+        : { id: Number(item.id) || item.id };
+
+      const product = await stockCollection.findOne(query);
 
       if (!product) {
-        outOfStockItems.push(`• מוצר מזהה ${item.id} לא נמצא במערכת`);
+        const itemName = item.name || `מוצר (${item.id})`;
+        outOfStockItems.push(`• ${itemName} לא נמצא במערכת`);
       } else if (product.stock < item.quantity) {
         outOfStockItems.push(
-          `• ${product.name}: מבוקש ${item.quantity} ק״ג, במלאי נותרו ${product.stock} ק״ג בלבד`
+          `• ${product.name}: מבוקש ${item.quantity} ק״ג/יח׳, במלאי נותרו ${product.stock} בלבד`
         );
       }
     }
@@ -362,9 +362,12 @@ app.post('/orders', async (req, res) => {
     }
 
     for (const item of items) {
-      const numProductId = Number(item.id);
+      const query = ObjectId.isValid(item.id)
+        ? { _id: new ObjectId(item.id) }
+        : { id: Number(item.id) || item.id };
+
       await stockCollection.updateOne(
-        { id: numProductId },
+        query,
         { $inc: { stock: -item.quantity } }
       );
     }
@@ -403,6 +406,158 @@ app.get('/html/admin.html', requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, '../html/admin.html'));
 });
 
+// הרשאות ADMIN
+app.post('/products', async (req, res) => {
+  try {
+    const db = getDB();
+    const stockCollection = db.collection('stock');
+    const newProduct = req.body;
+
+    const result = await stockCollection.insertOne(newProduct);
+    res.status(201).json({ message: 'המוצר נוסף בהצלחה', id: result.insertedId });
+  } catch (error) {
+    console.error('Error adding product:', error);
+    res.status(500).json({ error: 'שגיאה בהוספת מוצר למלאי' });
+  }
+});
+
+app.put('/products/:id', async (req, res) => {
+  try {
+    const db = getDB();
+    const stockCollection = db.collection('stock');
+    const productId = req.params.id;
+    const updatedData = req.body;
+
+    delete updatedData._id;
+
+    const result = await stockCollection.updateOne(
+      { _id: new ObjectId(productId) },
+      { $set: updatedData }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'מוצר לא נמצא' });
+    }
+
+    res.status(200).json({ message: 'המוצר עודכן בהצלחה' });
+  } catch (error) {
+    console.error('Error updating product:', error);
+    res.status(500).json({ error: 'שגיאה בעדכון המוצר' });
+  }
+});
+
+app.delete('/products/:id', async (req, res) => {
+  try {
+    const db = getDB();
+    const stockCollection = db.collection('stock');
+    const productId = req.params.id;
+
+    const result = await stockCollection.deleteOne({ _id: new ObjectId(productId) });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'מוצר לא נמצא למחיקה' });
+    }
+
+    res.status(200).json({ message: 'המוצר נמחק בהצלחה' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({ error: 'שגיאה במחיקת המוצר' });
+  }
+});
+
+// ==========================================
+// ניהול משתמשים / לקוחות (API)
+// ==========================================
+
+// 1. קבלת כל הלקוחות
+app.get('/users', async (req, res) => {
+  try {
+    const db = getDB();
+    const users = await db.collection('customers')
+      .find({}, { projection: { password: 0 } })
+      .toArray();
+    res.json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ error: 'שגיאה בשליפת הלקוחות' });
+  }
+});
+
+// 2. הוספת לקוח חדש ידנית
+app.post('/users', async (req, res) => {
+  try {
+    const db = getDB();
+    const customersCollection = db.collection('customers');
+
+    const hashedPassword = await bcrypt.hash('defaultPassword123', 10);
+    const newUserData = {
+      ...req.body,
+      password: hashedPassword,
+      createdAt: new Date(),
+      cart: []
+    };
+
+    const result = await customersCollection.insertOne(newUserData);
+    res.status(201).json({ _id: result.insertedId, ...newUserData });
+  } catch (error) {
+    console.error("Error creating user:", error);
+    res.status(500).json({ error: 'שגיאה ביצירת לקוח' });
+  }
+});
+
+// 3. עדכון פרטי לקוח קיים
+app.put('/users/:id', async (req, res) => {
+  try {
+    const db = getDB();
+    const customersCollection = db.collection('customers');
+    const productId = req.params.id;
+    const updatedData = { ...req.body };
+
+    delete updatedData._id;
+    delete updatedData.password;
+
+    const query = ObjectId.isValid(productId) ? { _id: new ObjectId(productId) } : { _id: productId };
+
+    const result = await customersCollection.findOneAndUpdate(
+      query,
+      { $set: updatedData },
+      { returnDocument: 'after', projection: { password: 0 } }
+    );
+
+    if (!result) {
+      return res.status(404).json({ error: 'לקוח לא נמצא' });
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ error: 'שגיאה בעדכון הלקוח' });
+  }
+});
+
+// 4. מחיקת לקוח מהמערכת
+app.delete('/users/:id', async (req, res) => {
+  try {
+    const db = getDB();
+    const customersCollection = db.collection('customers');
+    const productId = req.params.id;
+
+    const query = ObjectId.isValid(productId) ? { _id: new ObjectId(productId) } : { _id: productId };
+
+    const result = await customersCollection.deleteOne(query);
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'לקוח לא נמצא למחיקה' });
+    }
+
+    res.json({ message: 'הלקוח נמחק בהצלחה' });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: 'שגיאה במחיקת הלקוח' });
+  }
+});
+
+// נתיבי Static Files
 app.use('/html', express.static(path.join(__dirname, '../html')));
 app.use('/css', express.static(path.join(__dirname, '../css')));
 app.use('/js', express.static(path.join(__dirname, '../JS')));
