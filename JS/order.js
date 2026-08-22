@@ -7,7 +7,8 @@ function formatPrice(price) {
 function getTotal(cart) {
   let total = 0;
   cart.forEach(item => {
-    let product = products.find(p => String(p.id) === String(item.id));
+    // תמיכה ב-_id של מונגו לצד id מספרי ישן
+    let product = products.find(p => (p._id === item.id || p.id == item.id));
     if (!product) return;
     total += product.price * item.quantity;
   });
@@ -35,8 +36,12 @@ function showCart() {
   if (btn) btn.disabled = false;
 
   cart.forEach(item => {
-    let product = products.find(p => String(p.id) === String(item.id));
+    // תמיכה ב-_id של מונגו לצד id מספרי ישן
+    let product = products.find(p => (p._id === item.id || p.id == item.id));
     if (!product) return;
+
+    let unitText = product.unit || 'ק״ג';
+    if (unitText === 'יחידות' || unitText === 'מארזים') unitText = "יח'";
 
     let sum = product.price * item.quantity;
     let row = document.createElement("tr");
@@ -45,14 +50,14 @@ function showCart() {
       <td></td>
       <td>
         <div class="product-cell">
-          <img src="/image/cart/${product.name}.JPG" onerror="this.src='https://via.placeholder.com/50'" class="rounded-circle product-img">
+          <img src="${product.image}" onerror="this.src='https://via.placeholder.com/50'" class="rounded-circle product-img" style="width:38px; height:38px; object-fit:cover;">
           <span>${product.name}</span>
         </div>
       </td>
       <td>
         <div class="qty-box">
           <button onclick="removeFromCart('${item.id}')">−</button>
-          <span>${item.quantity} ק״ג</span>
+          <span>${item.quantity} ${unitText}</span>
           <button onclick="addToCart('${item.id}')">+</button>
         </div>
       </td>
@@ -107,7 +112,6 @@ async function autofillDefaultAddress() {
 
     if (data.defaultAddress) {
       window.userDefaultAddress = data.defaultAddress;
-      // פירוק הכתובת לתוך השדות במידה וקיימת
       const parts = data.defaultAddress.split(',').map(s => s.trim());
       if (parts[0]) document.getElementById("addrCity").value = parts[0];
       if (parts[1]) {
@@ -252,7 +256,6 @@ if (paymentForm) {
         return;
       }
 
-      // **שמירת כתובת ברירת מחדל במידה ולא הייתה מוגדרת עד כה**
       if (username !== 'אורח' && data.deliveryType === 'delivery' && !window.userDefaultAddress) {
         const wantToSave = confirm(`האם ברצונך לשמור את הכתובת "${data.address}" ככתובת ברירת המחדל למשלוחים הבאים?`);
         if (wantToSave) {
@@ -303,6 +306,7 @@ if (paymentForm) {
     }
   });
 }
+
 window.renderCart = showCart;
 
 document.addEventListener("DOMContentLoaded", async function () {
