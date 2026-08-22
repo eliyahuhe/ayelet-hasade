@@ -1,10 +1,8 @@
 let products = [];
 
-
 const cookieString = document.cookie.split(';').find(row => row.trim().startsWith('username='));
 const userName = cookieString ? decodeURIComponent(cookieString.split('=')[1]) : "אורח";
 document.getElementById("userName").textContent = "שלום, " + userName;
-
 
 async function loadProducts() {
     try {
@@ -26,13 +24,22 @@ async function loadProducts() {
     }
 }
 
-
 /* פונק' להדפסת הכרטיסים */
 function renderProducts(productsToShow) {
     const container = document.getElementById("productsContainer");
     if (!container) return;
     container.innerHTML = "";
+    
     productsToShow.forEach(product => {
+        // זיהוי המזהה (תמיכה גם ב-MongoDB וגם בנתונים מקומיים ישנים)
+        const productId = product._id || product.id;
+
+        // קביעת טקסט המידה והמחיר
+        const unitText = product.unit || 'ק״ג';
+        let priceLabel = 'לק״ג';
+        if (unitText === 'יחידות') priceLabel = 'ליחידה';
+        if (unitText === 'מארזים') priceLabel = 'למארז';
+
         container.innerHTML += `
                     <div class="col-auto">
                         <div class="card shadow-sm product-card">
@@ -41,18 +48,18 @@ function renderProducts(productsToShow) {
 
                             <div class="card-body d-flex flex-column justify-content-between text-center">
 
-                                <!-- שם -->
+                                <!-- שם ומחיר דינמי -->
                                 <div>
                                     <h6 class="fw-bold mb-1">${product.name}</h6>
                                     <div class="text-success fw-semibold small">
-                                        ₪${product.price} לק״ג
+                                        ₪${product.price} ${priceLabel}
                                     </div>
                                 </div>
 
-                                <!-- בחירת משקל -->
-                                <div class="d-flex justify-content-center align-items-center gap-2">
+                                <!-- בחירת כמות והוספה לעגלה -->
+                                <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
 
-                                    <button onclick="removeFromCart(${product.id})" class="btn btn-outline-success btn-sm rounded-circle">
+                                    <button onclick="removeFromCart('${productId}')" class="btn btn-outline-success btn-sm rounded-circle">
                                         <i class="bi bi-dash"></i>
                                     </button>
 
@@ -60,7 +67,7 @@ function renderProducts(productsToShow) {
                                         הוסף לסל
                                     </div>
 
-                                    <button onclick="addToCart(${product.id})" class="btn btn-success btn-sm rounded-circle">
+                                    <button onclick="addToCart('${productId}')" class="btn btn-success btn-sm rounded-circle">
                                         <i class="bi bi-plus"></i>
                                     </button>
 
@@ -85,7 +92,11 @@ function filterproducts(category) {
 /* קריאה לפונק' להדפסה */
 document.addEventListener("DOMContentLoaded", async function () {
     await loadProducts();
-    renderCart();
+    
+    // מוודא שהפונקציה קיימת לפני קריאה (כדי למנוע שגיאות אם storage.js נטען לאט)
+    if (typeof renderCart === 'function') {
+        renderCart();
+    }
 });
 
 /* הדגשת כפתורי הנאב בלחיצה */

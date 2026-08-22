@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const { connectDB, getDB, closeDB } = require('./db');
+const { ObjectId } = require('mongodb');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -140,6 +141,8 @@ app.post('/cart/update', async (req, res) => {
   }
 });
 
+
+
 // 4. ניקוי עגלה לאחר הזמנה
 app.post('/cart/clear', async (req, res) => {
   try {
@@ -172,6 +175,135 @@ app.get('/products', async (req, res) => {
   }
 });
 
+
+
+// הרשאות ADMIN
+// הוספת מוצר חדש (POST)
+app.post('/products', async (req, res) => {
+  try {
+    const db = getDB();
+    const stockCollection = db.collection('stock');
+    const newProduct = req.body;
+    
+    const result = await stockCollection.insertOne(newProduct);
+    res.status(201).json({ message: 'המוצר נוסף בהצלחה', id: result.insertedId });
+  } catch (error) {
+    console.error('Error adding product:', error);
+    res.status(500).json({ error: 'שגיאה בהוספת מוצר למלאי' });
+  }
+});
+
+// עדכון מוצר קיים (PUT)
+app.put('/products/:id', async (req, res) => {
+  try {
+    const db = getDB();
+    const stockCollection = db.collection('stock');
+    const productId = req.params.id;
+    const updatedData = req.body;
+    
+    // מונעים ניסיון לעדכן את ה-_id עצמו
+    delete updatedData._id; 
+
+    const result = await stockCollection.updateOne(
+      { _id: new ObjectId(productId) },
+      { $set: updatedData }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'מוצר לא נמצא' });
+    }
+
+    res.status(200).json({ message: 'המוצר עודכן בהצלחה' });
+  } catch (error) {
+    console.error('Error updating product:', error);
+    res.status(500).json({ error: 'שגיאה בעדכון המוצר' });
+  }
+});
+
+// מחיקת מוצר (DELETE)
+app.delete('/products/:id', async (req, res) => {
+  try {
+    const db = getDB();
+    const stockCollection = db.collection('stock');
+    const productId = req.params.id;
+
+    const result = await stockCollection.deleteOne({ _id: new ObjectId(productId) });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'מוצר לא נמצא למחיקה' });
+    }
+
+    res.status(200).json({ message: 'המוצר נמחק בהצלחה' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({ error: 'שגיאה במחיקת המוצר' });
+  }
+});
+
+
+// ==========================================
+// ניהול משתמשים / לקוחות (API)
+// ==========================================
+
+// 1. קבלת כל הלקוחות (ללא שליפת סיסמאות מטעמי אבטחה)
+app.get('/users', async (req, res) => {
+    try {
+        // המינוס לפני ה-password אומר למונגו: "תביא הכל חוץ מהשדה הזה"
+        const users = await User.find({}, '-password');
+        res.json(users);
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).json({ error: 'שגיאה בשליפת הלקוחות' });
+    }
+});
+
+// 2. הוספת לקוח חדש ידנית (דרך פאנל הניהול)
+app.post('/users', async (req, res) => {
+    try {
+        // בדרך כלל תרצה להגדיר סיסמת ברירת מחדל אם המנהל יוצר אותו
+        const userData = { ...req.body, password: 'defaultPassword123' }; 
+        const newUser = new User(userData);
+        await newUser.save();
+        res.status(201).json(newUser);
+    } catch (error) {
+        console.error("Error creating user:", error);
+        res.status(500).json({ error: 'שגיאה ביצירת לקוח' });
+    }
+});
+
+// 3. עדכון פרטי לקוח קיים (הרשאות, כתובת, טלפון וכו')
+app.put('/users/:id', async (req, res) => {
+    try {
+        const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, select: '-password' });
+        if (!updatedUser) {
+            return res.status(404).json({ error: 'לקוח לא נמצא' });
+        }
+        res.json(updatedUser);
+    } catch (error) {
+        console.error("Error updating user:", error);
+        res.status(500).json({ error: 'שגיאה בעדכון הלקוח' });
+    }
+});
+
+// 4. מחיקת לקוח מהמערכת
+app.delete('/users/:id', async (req, res) => {
+    try {
+        const deletedUser = await User.findByIdAndDelete(req.params.id);
+        if (!deletedUser) {
+            return res.status(404).json({ error: 'לקוח לא נמצא' });
+        }
+        res.json({ message: 'הלקוח נמחק בהצלחה' });
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        res.status(500).json({ error: 'שגיאה במחיקת הלקוח' });
+    }
+});
+
+
+
+
+
+
 // נתיבי Static Files
 app.use('/html', express.static(path.join(__dirname, '../html')));
 app.use('/css', express.static(path.join(__dirname, '../css')));
@@ -194,3 +326,4 @@ connectDB().then(() => {
     process.exit(0);
   });
 });
+

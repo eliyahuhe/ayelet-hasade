@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="he">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>איילת השדה - ממשק ניהול</title>
+    <link rel="icon" href="/image/favicon.png">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    
+    <!-- קבצי העיצוב שלנו -->
+    <link rel="stylesheet" href="/css/shop.css">
+    <link rel="stylesheet" href="/css/productsManage.css"> 
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous" defer></script>
+</head>
+
+<body>
+
+    <!-- בר ראשי -->
+    <div class="sticky-top">
+        <nav class="navbar navbar-main">
+            <div class="container-fluid d-flex align-items-center justify-content-between flex-nowrap ms-4">
+
+                <!-- שם מנהל וכפתורי ניהול -->
+                <div class="text-white d-flex align-items-center gap-2 ms-4">
+                    <span id="userName">מנהל מערכת</span>
+                    <button class="user-btn">
+                        <i class="bi bi-person-circle fs-4"></i>
+                    </button>
+                    <!-- כפתור עריכה/ניהול -->
+                    <button type="button" class="btn btn-warning ms-5 fw-bold" onclick="toggleEditMode()">
+                        <i class="bi bi-pencil-square"></i> עריכת חנות
+                    </button>
+                </div>
+
+                <!-- חיפוש באמצע -->
+                <form class="d-flex justify-content-center ms-5 search-form" role="search" dir="rtl">
+                    <input id="searchInput" class="form-control rounded-pill me-2" type="search"
+                        placeholder="חיפוש מוצר לעריכה" aria-label="Search" />
+                </form>
+
+                <!-- לוגו + שם חנות -->
+                <div class="d-flex align-items-center gap-2 me-5 logo-container">
+                    <span class="navbar-brand mb-0 fw-bold fs-4 text-white">
+                        איילת השדה - ניהול
+                    </span>
+                    <img src="/image/logo.png" alt="לוגו איילת השדה" class="rounded-circle border border-white border-1 logo-img">
+                </div>
+
+            </div>
+        </nav>
+
+        <!-- בר משנה (סינון קטגוריות) -->
+        <nav class="navbar navbar-expand-lg bg-light border-top border-bottom">
+            <div class="container justify-content-center">
+                <ul class="navbar-nav flex-row gap-3">
+                    <li class="nav-item">
+                        <a class="nav-link category-btn text-success" href="#"
+                            onclick="setNavBtn(this); filterproducts('vegetables')">ירקות</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link category-btn text-success" href="#"
+                            onclick="setNavBtn(this); filterproducts('fruits')">פירות</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link category-btn active fw-bold text-success" href="#"
+                            onclick="setNavBtn(this); filterproducts('all')">כל המוצרים</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <main class="container mt-5" dir="rtl">
+        <div class="row">
+            <!-- אזור כרטיסי המוצרים (יתמלא דרך JS) -->
+            <div class="col-lg-9">
+                <div class="row g-4 justify-content-start" id="productsContainer">
+                    <!-- המוצרים יוזרקו לכאן -->
+                </div>
+            </div>
+
+            <!-- פאנל ניהול (מצד שמאל) -->
+            <div class="col-lg-3">
+                <div class=" bg-white admin-card shadow-sm">
+                    
+                    <!-- כותרת הפאנל -->
+                    <div class="p-3 border-bottom bg-light">
+                        <div class="fw-bold fs-5 text-dark d-flex align-items-center gap-2">
+                            <i class="bi bi-gear-fill text-primary"></i> פאנל ניהול
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4 d-flex flex-column gap-3">
+                        <p class="small text-muted mb-2">
+                            כאן תוכל להוסיף מוצרים חדשים למלאי, או למחוק ולערוך מוצרים קיימים.
+                        </p>
+                        
+                        <!-- כפתור הוספת מוצר -->
+                        <button class="btn btn-success w-100 rounded-3 fw-semibold shadow-sm" onclick="openAddProductModal()">
+                            <i class="bi bi-plus-lg me-2"></i> הוסף מוצר חדש
+                        </button>
+                        
+                        <!-- כפתור מחיקה גורפת -->
+                        <button class="btn btn-outline-danger w-100 rounded-3 fw-semibold" onclick="toggleDeleteMode()">
+                            <i class="bi bi-trash3 me-2"></i> מצב מחיקת מוצרים
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- חלון קופץ (Modal) להוספה/עריכת מוצר -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true" dir="rtl">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalTitle">הוסף מוצר חדש</h5>
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="productForm" onsubmit="saveProduct(event)">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">שם המוצר</label>
+                            <input type="text" class="form-control" id="productName" required>
+                        </div>
+                        
+                        <!-- שורה המכילה את המחיר, המלאי וסוג היחידה (מעודכן ל-3 עמודות) -->
+                        <div class="row">
+                            <div class="col-4 mb-3">
+                                <label for="productPrice" class="form-label">מחיר (₪)</label>
+                                <input type="number" step="0.1" min="0" class="form-control" id="productPrice" required>
+                            </div>
+                            <div class="col-4 mb-3">
+                                <label for="productStock" class="form-label">מלאי</label>
+                                <input type="number" min="0" class="form-control" id="productStock" required>
+                            </div>
+                            <div class="col-4 mb-3">
+                                <label for="productUnit" class="form-label">סוג יחידה</label>
+                                <select class="form-select" id="productUnit" required>
+                                    <option value="ק״ג">ק״ג</option>
+                                    <option value="יחידות">יחידות</option>
+                                    <option value="מארזים">מארזים</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="productCategory" class="form-label">קטגוריה</label>
+                            <select class="form-select" id="productCategory" required>
+                                <option value="vegetables">ירקות</option>
+                                <option value="fruits">פירות</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productImage" class="form-label">קישור לתמונה (URL / נתיב מקומי)</label>
+                            <input type="text" class="form-control" id="productImage" placeholder="/image/apple.png">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ביטול</button>
+                        <button type="submit" class="btn btn-success">שמור מוצר</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="mt-5 footer-main">
+        <div class="container py-4">
+            <div class="row text-center text-md-end align-items-start">
+
+                <!-- קישורים -->
+                <div class="col-md-4 mb-4 footer-links-col" style="position: relative; z-index: 9999;">
+                    <h6 class="fw-bold mb-3 text-accent text-end">ניווט מהיר</h6>
+
+                    <div class="d-flex flex-column align-items-end gap-2 small">
+                        <a href="#" class="category-btn text-white text-decoration-none p-0"
+                            onclick="setNavBtn(this); filterproducts('all')">כל המוצרים</a>
+
+                        <a href="#" class="category-btn text-white text-decoration-none p-0"
+                            onclick="setNavBtn(this); filterproducts('vegetables')">ירקות</a>
+
+                        <a href="#" class="category-btn text-white text-decoration-none p-0"
+                            onclick="setNavBtn(this); filterproducts('fruits')">פירות</a>
+                    </div>
+                </div>
+
+                <!-- יצירת קשר -->
+                <div class="col-md-4 mb-4 footer-contact-col">
+                    <h6 class="fw-bold mb-3 text-accent">יצירת קשר</h6>
+                    <div class="d-flex flex-column gap-2 small">
+                        <div>
+                            משק 46, ברכיה
+                            <i class="bi bi-geo-fill ms-2 text-accent"></i>
+                        </div>
+                        <div>
+                            055-2652245
+                            <i class="bi bi-telephone-fill ms-2 text-accent"></i>
+                        </div>
+                        <div>
+                            info@ayelet.co.il
+                            <i class="bi bi-envelope-fill ms-2 text-accent"></i>
+                        </div>
+                        <div>
+                            א׳–ה׳ 09:00–20:00 | ו׳ 09:00–15:00
+                            <i class="bi bi-clock-fill ms-2 text-accent"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- לוגו + שם -->
+                <div
+                    class="col-md-4 mb-4 d-flex align-items-center justify-content-md-end justify-content-center gap-3">
+                    <div class="text-md-end text-center">
+                        <span class="fw-bold fs-5 d-block">
+                            איילת השדה
+                        </span>
+                        <p class="small mt-1 text-white mb-0">
+                            איילת השדה הוא עסק משפחתי, דור שלישי לחקלאות ישראלית, הפועל מתוך ציונות, אהבת הארץ ועבודה
+                            עברית.
+                            אנו מתמחים בשיווק פירות, ירקות ותוצרת חקלאית, לצד שתייה, מוצרים קפואים ומוצרי צריכה איכותיים
+                            — ישירות מהחקלאי לצרכן, במחירים הוגנים ובשירות אישי ואמין.
+                        </p>
+                    </div>
+                    <img src="/image/logo.png" class="rounded-circle border border-white footer-logo-img">
+                </div>
+
+            </div>
+
+            <hr class="border-light my-3">
+
+            <div class="text-center small">
+                © 2026 איילת השדה
+            </div>
+        </div>
+    </footer>
+
+    <!-- סקריפטים -->
+    <script src="../JS/storage.js"></script>
+    <script src="../JS/productsManage.js"></script> 
+</body>
+</html>

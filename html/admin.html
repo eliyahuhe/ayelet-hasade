@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="he">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>איילת השדה - לוח בקרה למנהל</title>
+    <link rel="icon" href="/image/favicon.png">
+    
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    
+    <!-- חיבור לקובץ העיצוב -->
+    <link rel="stylesheet" href="/css/admin.css"> 
+</head>
+
+<body class="bg-light">
+
+    <!-- בר ניווט עליון -->
+    <nav class="navbar navbar-main sticky-top shadow-sm">
+        <div class="container-fluid d-flex align-items-center justify-content-between flex-nowrap px-4">
+            <div class="text-white d-flex align-items-center gap-2">
+                <span id="adminGreeting">שלום, מנהל מערכת</span>
+                <i class="bi bi-person-circle fs-4"></i>
+            </div>
+            
+            <div class="d-flex align-items-center gap-2 logo-container">
+                <span class="navbar-brand mb-0 fw-bold fs-4 text-white">
+                    איילת השדה - לוח בקרה
+                </span>
+                <img src="/image/logo.png" alt="לוגו" class="rounded-circle border border-white border-1 logo-img">
+            </div>
+        </div>
+    </nav>
+
+    <!-- תוכן מרכזי -->
+    <main class="container mt-5" dir="rtl">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="fw-bold text-dark">סקירה כללית</h2>
+                <p class="text-muted">בחר את האזור שאותו תרצה לנהל</p>
+            </div>
+        </div>
+
+        <!-- גריד כרטיסי הניווט -->
+        <div class="row g-4">
+            
+            <!-- כרטיס 1: ניהול מוצרים -->
+            <div class="col-md-4">
+                <a href="productsManage.html" class="text-decoration-none">
+                    <div class="card h-100 shadow-sm border-0 text-center py-4 admin-dashboard-card transition-hover">
+                        <div class="card-body">
+                            <div class="display-4 text-success mb-3">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                            <h4 class="fw-bold text-dark mb-2">ניהול מלאי ומוצרים</h4>
+                            <p class="text-muted small">הוספה, עריכה ומחיקה של מוצרים בקטלוג החנות.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- כרטיס 2: ניהול לקוחות והזמנות -->
+            <div class="col-md-4">
+                <a href="customersManage.html" class="text-decoration-none">
+                    <div class="card h-100 shadow-sm border-0 text-center py-4 admin-dashboard-card transition-hover">
+                        <div class="card-body">
+                            <div class="display-4 text-primary mb-3">
+                                <i class="bi bi-receipt"></i>
+                            </div>
+                            <h4 class="fw-bold text-dark mb-2">לקוחות והזמנות</h4>
+                            <p class="text-muted small">צפייה בהזמנות פעילות, היסטוריית רכישות ופרטי לקוחות.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- כרטיס 3: נתונים וסטטיסטיקות -->
+            <div class="col-md-4">
+                <a href="#" class="text-decoration-none">
+                    <div class="card h-100 shadow-sm border-0 text-center py-4 admin-dashboard-card transition-hover">
+                        <div class="card-body">
+                            <div class="display-4 text-warning mb-3">
+                                <i class="bi bi-graph-up"></i>
+                            </div>
+                            <h4 class="fw-bold text-dark mb-2">דוחות ונתונים</h4>
+                            <p class="text-muted small">מעקב אחר הכנסות, מוצרים נמכרים ביותר וסטטיסטיקות עסק.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- חיבור לקובץ הלוגיקה -->
+    <script src="/JS/admin.js"></script>
+</body>
+</html>

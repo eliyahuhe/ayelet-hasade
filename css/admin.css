@@ -1,0 +1,27 @@
+/* --- עיצוב הבר העליון (Navbar) --- */
+.navbar-main {
+     background-color: rgb(0, 83, 80);
+    padding: 10px 0;
+}
+
+.logo-img {
+    width: 50px; 
+    height: 50px; 
+    object-fit: cover;
+}
+
+/* --- עיצוב כרטיסיות לוח הבקרה (Dashboard) --- */
+.admin-dashboard-card {
+    border-radius: 12px;
+    background-color: #ffffff;
+}
+
+/* אפקט ריחוף (Hover) על הכרטיסיות */
+.transition-hover {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.transition-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}

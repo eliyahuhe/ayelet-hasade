@@ -1,0 +1,56 @@
+/* =========================================
+   productsManage.css - עיצובים ייעודיים לדף המנהל
+========================================= */
+
+/* רקע הנאב-בר הראשי */
+.navbar-main {
+    background-color: rgb(0, 83, 80); /* ירוק של בוטסטראפ כברירת מחדל, תשנה לפי צבע המותג שלך */
+}
+
+/* עיצוב כפתור המשתמש (האייקון) */
+.user-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+}
+
+.user-btn:hover {
+    opacity: 0.8;
+}
+
+/* מידות לוגו האתר בנאב-בר */
+.logo-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover; /* מונע עיוות של התמונה */
+}
+
+/* עיצוב שורת החיפוש */
+.search-form {
+    flex-grow: 1;
+    max-width: 400px; /* מונע משורת החיפוש להיות רחבה מדי */
+}
+
+/* 
+   עיצוב פאנל הניהול הצדדי (Sticky)
+   מחליף את תכונת ה-style="top: 150px" שהייתה ב-HTML
+*/
+.admin-card {
+    top: 140px; /* שומר על המרחק מהחלק העליון בזמן גלילה */
+    z-index: 10;
+    border: 1px solid #e9ecef;
+}
+
+/* אפקט מעבר חלק לכפתורי הפאנל */
+.admin-card .btn {
+    transition: all 0.3s ease;
+}
+
+.admin-card .btn:hover {
+    transform: translateY(-2px);
+}
