@@ -44,6 +44,7 @@ app.post('/signup', async (req, res) => {
       username: username,
       phone: phone,
       password: hashedPassword,
+      defaultAddress: '', // כתובת ברירת מחדל ריקה בהתחלה
       createdAt: new Date(),
       cart: [],
       role: 'customer'
@@ -111,7 +112,7 @@ app.post('/login', async (req, res) => {
 });
 
 // ----------------------------------------------------
-// נתיבים חדשים לאזור אישי (Profile API)
+// נתיבים לאזור אישי (Profile API)
 // ----------------------------------------------------
 
 // שליפת פרטי משתמש
@@ -136,6 +137,7 @@ app.get('/api/user/profile', async (req, res) => {
       email: user.email || 'לא הוגדר',
       username: user.username,
       phone: user.phone || 'לא הוגדר',
+      defaultAddress: user.defaultAddress || '', // החזרת כתובת ברירת המחדל
       createdAt: user.createdAt
     });
   } catch (error) {
@@ -150,12 +152,8 @@ app.put('/api/user/email', async (req, res) => {
     const username = req.cookies?.username || req.body.username;
     const { email } = req.body;
 
-    if (!username) {
-      return res.status(401).json({ error: 'משתמש לא מחובר' });
-    }
-    if (!email) {
-      return res.status(400).json({ error: 'חסרה כתובת אימייל' });
-    }
+    if (!username) return res.status(401).json({ error: 'משתמש לא מחובר' });
+    if (!email) return res.status(400).json({ error: 'חסרה כתובת אימייל' });
 
     const db = getDB();
     await db.collection('customers').updateOne(
@@ -176,12 +174,8 @@ app.put('/api/user/phone', async (req, res) => {
     const username = req.cookies?.username || req.body.username;
     const { phone } = req.body;
 
-    if (!username) {
-      return res.status(401).json({ error: 'משתמש לא מחובר' });
-    }
-    if (!phone) {
-      return res.status(400).json({ error: 'חסר מספר טלפון' });
-    }
+    if (!username) return res.status(401).json({ error: 'משתמש לא מחובר' });
+    if (!phone) return res.status(400).json({ error: 'חסר מספר טלפון' });
 
     const db = getDB();
     await db.collection('customers').updateOne(
@@ -192,6 +186,27 @@ app.put('/api/user/phone', async (req, res) => {
     res.status(200).json({ message: 'מספר הטלפון עודכן בהצלחה', phone });
   } catch (error) {
     console.error('Error updating phone:', error);
+    res.status(500).json({ error: 'שגיאת שרת פנימית' });
+  }
+});
+
+// עדכון כתובת ברירת מחדל למשלוח
+app.put('/api/user/address', async (req, res) => {
+  try {
+    const username = req.cookies?.username || req.body.username;
+    const { address } = req.body;
+
+    if (!username) return res.status(401).json({ error: 'משתמש לא מחובר' });
+
+    const db = getDB();
+    await db.collection('customers').updateOne(
+      { username: username },
+      { $set: { defaultAddress: address || '' } }
+    );
+
+    res.status(200).json({ message: 'כתובת ברירת המחדל עודכנה בהצלחה', address });
+  } catch (error) {
+    console.error('Error updating address:', error);
     res.status(500).json({ error: 'שגיאת שרת פנימית' });
   }
 });

@@ -112,7 +112,7 @@
 
             <div class="row g-3">
                 <!-- אימייל + עריכת אימייל -->
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="info-label mb-1">דואר אלקטרוני</div>
                     <div class="info-value">
                         <span id="emailDisplay">user@example.com</span>
@@ -133,7 +133,7 @@
                 </div>
 
                 <!-- טלפון + עריכה -->
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="info-label mb-1">מספר טלפון</div>
                     <div class="info-value">
                         <span id="phoneDisplay">050-1234567</span>
@@ -153,7 +153,29 @@
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <!-- כתובת ברירת מחדל + עריכה -->
+                <div class="col-md-3">
+                    <div class="info-label mb-1">כתובת למשלוח (ברירת מחדל)</div>
+                    <div class="info-value">
+                        <span id="addressDisplay" class="text-truncate" style="max-width: 140px;">לא הוגדרה כתובת</span>
+                        <button class="btn btn-sm btn-link text-success p-0 ms-2 flex-shrink-0"
+                            onclick="toggleEditAddress()" id="editAddressBtn">
+                            <i class="bi bi-pencil"></i> עריכה
+                        </button>
+                    </div>
+                    <!-- שדה עריכת כתובת -->
+                    <div id="addressEditBox" class="d-none mt-2">
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="addressInput" class="form-control"
+                                placeholder="למשל: תל אביב, הירקון 5">
+                            <button class="btn btn-success" type="button" onclick="saveAddress()">שמירה</button>
+                            <button class="btn btn-outline-secondary" type="button"
+                                onclick="toggleEditAddress()">ביטול</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
                     <div class="info-label mb-1">וותק לקוח</div>
                     <div class="info-value" id="profileMemberSince">לקוח מ-2024</div>
                 </div>

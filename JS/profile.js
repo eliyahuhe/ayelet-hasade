@@ -14,15 +14,22 @@ async function loadUserProfile() {
     const data = await res.json();
 
     // הצגת שם משתמש בבר העליון
-    document.getElementById('userName').innerText = `HI, ${data.username}`;
+    document.getElementById('userName').innerText = `שלום, ${data.username}`;
 
-    // הצגת אימייל וטלפון
+    // הצגת אימייל
     const emailVal = data.email || 'לא הוגדר';
     document.getElementById('emailDisplay').innerText = emailVal;
     document.getElementById('emailInput').value = emailVal;
 
+    // הצגת טלפון
     document.getElementById('phoneDisplay').innerText = data.phone;
     document.getElementById('phoneInput').value = data.phone;
+
+    // הצגת כתובת ברירת מחדל
+    const addrVal = data.defaultAddress || 'לא הוגדרה כתובת';
+    document.getElementById('addressDisplay').innerText = addrVal;
+    document.getElementById('addressDisplay').title = addrVal;
+    document.getElementById('addressInput').value = data.defaultAddress || '';
 
     // חישוב וותק
     if (data.createdAt) {
@@ -92,7 +99,35 @@ function toggleEditPhone() {
   document.getElementById('phoneEditBox').classList.toggle('d-none');
 }
 
-// 4. טעינת היסטוריית ההזמנות מה-DB
+// 4. שמירת כתובת ברירת מחדל ב-DB
+async function saveAddress() {
+  const newAddress = document.getElementById('addressInput').value.trim();
+
+  try {
+    const res = await fetch('/api/user/address', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ address: newAddress })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      document.getElementById('addressDisplay').innerText = newAddress || 'לא הוגדרה כתובת';
+      document.getElementById('addressDisplay').title = newAddress;
+      toggleEditAddress();
+    } else {
+      alert(data.error || 'שגיאה בעדכון הכתובת');
+    }
+  } catch (err) {
+    console.error('שגיאה בעדכון כתובת:', err);
+  }
+}
+
+function toggleEditAddress() {
+  document.getElementById('addressEditBox').classList.toggle('d-none');
+}
+
+// 5. טעינת היסטוריית ההזמנות מה-DB
 async function loadUserOrders() {
   const accordion = document.getElementById('ordersAccordion');
   const noOrdersAlert = document.getElementById('noOrdersAlert');

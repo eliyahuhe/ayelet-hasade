@@ -95,6 +95,36 @@ function checkGuestStatus() {
   }
 }
 
+// טעינת כתובת ברירת המחדל של המשתמש ומילוי אוטומטי
+async function autofillDefaultAddress() {
+  const username = localStorage.getItem('username');
+  if (!username) return;
+
+  try {
+    const res = await fetch('/api/user/profile');
+    if (!res.ok) return;
+    const data = await res.json();
+
+    if (data.defaultAddress) {
+      window.userDefaultAddress = data.defaultAddress;
+      // פירוק הכתובת לתוך השדות במידה וקיימת
+      const parts = data.defaultAddress.split(',').map(s => s.trim());
+      if (parts[0]) document.getElementById("addrCity").value = parts[0];
+      if (parts[1]) {
+        const streetAndHouse = parts[1].split(' ');
+        const house = streetAndHouse.pop();
+        document.getElementById("addrStreet").value = streetAndHouse.join(' ');
+        document.getElementById("addrHouse").value = house || '';
+      }
+      if (parts[2]) {
+        document.getElementById("addrApt").value = parts[2].replace('דירה', '').trim();
+      }
+    }
+  } catch (err) {
+    console.error('שגיאה בשליפת כתובת ברירת מחדל:', err);
+  }
+}
+
 window.tempOrder = null;
 
 function isValidID(id) {
@@ -113,7 +143,6 @@ if (submitBtn) {
     let guestName = "";
     let guestPhone = "";
 
-    // בדיקת שדות אורח
     if (!username) {
       guestName = document.getElementById("guestName")?.value.trim();
       guestPhone = document.getElementById("guestPhone")?.value.trim();
@@ -187,7 +216,6 @@ if (paymentForm) {
     let data = window.tempOrder;
     if (!data) return;
 
-    // --- מניעת לחיצות כפולות ---
     const submitBtn = this.querySelector('button[type="submit"]');
     if (submitBtn) {
       submitBtn.disabled = true;
@@ -217,7 +245,6 @@ if (paymentForm) {
 
       if (!response.ok) {
         alert(result.error || "אירעה שגיאה בביצוע ההזמנה");
-        // החזרת הכפתור למצב פעיל במידה והייתה שגיאה
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.innerText = "שלם עכשיו";
@@ -225,12 +252,28 @@ if (paymentForm) {
         return;
       }
 
+      // **שמירת כתובת ברירת מחדל במידה ולא הייתה מוגדרת עד כה**
+      if (username !== 'אורח' && data.deliveryType === 'delivery' && !window.userDefaultAddress) {
+        const wantToSave = confirm(`האם ברצונך לשמור את הכתובת "${data.address}" ככתובת ברירת המחדל למשלוחים הבאים?`);
+        if (wantToSave) {
+          try {
+            await fetch('/api/user/address', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ address: data.address })
+            });
+            window.userDefaultAddress = data.address;
+          } catch (e) {
+            console.error("שגיאה בשמירת כתובת ברירת מחדל:", e);
+          }
+        }
+      }
+
       localStorage.setItem("lastOrder", JSON.stringify({ ...orderData, id: result.orderId }));
       localStorage.removeItem(CART_KEY);
 
       closePaymentPopup();
 
-      // איפוס הכפתור לאחר סגירת הפופאפ
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.innerText = "שלם עכשיו";
@@ -253,7 +296,6 @@ if (paymentForm) {
     } catch (err) {
       console.error('שגיאה בתקשורת מול השרת ביצירת הזמנה:', err);
       alert('אירעה שגיאה בתקשורת עם השרת, אנא נסה שוב');
-      // החזרת הכפתור למצב פעיל במידה והייתה שגיאה בתקשורת
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.innerText = "שלם עכשיו";
@@ -265,6 +307,7 @@ window.renderCart = showCart;
 
 document.addEventListener("DOMContentLoaded", async function () {
   checkGuestStatus();
+  await autofillDefaultAddress();
   if (typeof displayUserName === 'function') {
     displayUserName();
   }
