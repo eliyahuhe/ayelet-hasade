@@ -339,6 +339,86 @@ app.get('/products', async (req, res) => {
   }
 });
 
+// ==========================================
+// שליפת כל ההזמנות עבור פאנל הניהול
+// ==========================================
+
+
+
+app.get('/admin/orders', async (req, res) => {
+  try {
+    const db = getDB();
+    const ordersCollection = db.collection('orders');
+    const stockCollection = db.collection('stock');
+
+    const orders = await ordersCollection.find({}).sort({ createdAt: -1 }).toArray();
+    const stockItems = await stockCollection.find({}).toArray();
+
+    // יצירת מילון למיפוי המוצרים לפי ה-ID
+    const stockMap = {};
+    stockItems.forEach(prod => {
+      if (prod._id) stockMap[String(prod._id)] = prod;
+      if (prod.id !== undefined) stockMap[String(prod.id)] = prod;
+    });
+
+    // העשרת שם המוצר בכל פריט בעגלה
+    const enrichedOrders = orders.map(order => {
+      const enrichedItems = (order.items || []).map(item => {
+        const rawId = item.id !== undefined ? item.id : item.productId;
+        const stringId = rawId ? String(rawId) : '';
+        const productInfo = stockMap[stringId] || {};
+
+        return {
+          ...item,
+          name: productInfo.name || `מוצר (${stringId})`
+        };
+      });
+
+      return {
+        ...order,
+        items: enrichedItems
+      };
+    });
+
+    res.json(enrichedOrders);
+  } catch (error) {
+    console.error("שגיאה בשליפת ההזמנות למנהל:", error);
+    res.status(500).json({ error: 'שגיאה בשליפת ההזמנות' });
+  }
+});
+
+
+// ==========================================
+// עדכון סטטוס הזמנה (מנהל)
+// ==========================================
+app.put('/admin/orders/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const orderId = req.params.id;
+
+    if (!['pending', 'completed', 'cancelled'].includes(status)) {
+      return res.status(400).json({ error: 'סטטוס לא תקין' });
+    }
+
+    const db = getDB();
+    const query = ObjectId.isValid(orderId) ? { _id: new ObjectId(orderId) } : { orderId: orderId };
+
+    const result = await db.collection('orders').updateOne(
+      query,
+      { $set: { status: status } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'הזמנה לא נמצאה' });
+    }
+
+    res.json({ message: 'סטטוס ההזמנה עודכן בהצלחה', status });
+  } catch (error) {
+    console.error("שגיאה בעדכון סטטוס הזמנה:", error);
+    res.status(500).json({ error: 'שגיאה בעדכון הסטטוס' });
+  }
+});
+
 // ביצוע הזמנה
 app.post('/orders', async (req, res) => {
   try {
