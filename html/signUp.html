@@ -31,8 +31,8 @@
                 <div class="input-group">
                     <!-- שם משתמש ייחודי -->
                     <input type="text" id="username" placeholder="שם משתמש..." autocomplete="off" required
-                        pattern="[A-Za-z0-9_]+" title="שם משתמש יכול להכיל אותיות באנגלית, מספרים וקו תחתון בלבד">
-
+                        pattern="[A-Za-z0-9_\u0590-\u05FF]+"
+                        title="שם משתמש יכול להכיל אותיות באנגלית, בעברית, מספרים וקו תחתון בלבד">
                     <!-- טלפון -->
                     <input type="tel" id="phone" placeholder="מספר טלפון" autocomplete="tel" required
                         pattern="[0-9]{9,10}" title="יש להזין מספר טלפון תקין (9-10 ספרות)">

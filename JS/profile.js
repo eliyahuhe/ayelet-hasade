@@ -183,7 +183,7 @@ async function loadUserOrders() {
           </h2>
           <div id="${collapseId}" class="accordion-collapse collapse" data-bs-parent="#ordersAccordion">
             <div class="accordion-body bg-light-subtle">
-              <p class="mb-2"><strong>סוג קבלה:</strong> ${deliveryDetails}</p>
+              <p class="mb-2"><strong>סוג משלוח:</strong> ${deliveryDetails}</p>
               
               <div class="table-responsive">
                 <table class="table table-sm align-middle mt-2 bg-white rounded shadow-sm">

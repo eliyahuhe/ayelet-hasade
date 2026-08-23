@@ -1,8 +1,9 @@
 /* =========================================
-   customersManage.js - ניהול לקוחות איילת השדה
+    customersManage.js - ניהול לקוחות והזמנות איילת השדה
 ========================================= */
 
 let customers = [];
+let orders = [];
 let currentFilter = 'all';
 let currentEditId = null;
 
@@ -10,14 +11,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     // שליפת שם המנהל
     const cookieString = document.cookie.split(';').find(row => row.trim().startsWith('username='));
     const userName = cookieString ? decodeURIComponent(cookieString.split('=')[1]) : "מנהל מערכת";
-    document.getElementById("userName").textContent = "שלום, " + userName;
+    const userNameEl = document.getElementById("userName");
+    if (userNameEl) userNameEl.textContent = "שלום, " + userName;
 
-    // משיכת לקוחות מהשרת בטעינה
+    // משיכת לקוחות והזמנות מהשרת בטעינה
     await loadCustomers();
+    await loadAdminOrders();
 
-    // מאזין לחיפוש
-    document.getElementById('searchInput').addEventListener('input', applyFilters);
+    // מאזין לחיפוש לקוחות
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', applyFilters);
+    }
 });
+
+// פונקציית מעבר בין תצוגת לקוחות לתצוגת הזמנות מתוך בר המשנה
+function switchView(viewType) {
+    const secCust = document.getElementById('viewCustomers');
+    const secOrd = document.getElementById('viewOrders');
+    const tabCust = document.getElementById('navTabCustomers');
+    const tabOrd = document.getElementById('navTabOrders');
+
+    if (viewType === 'customers') {
+        secCust.style.display = 'block';
+        secOrd.style.display = 'none';
+        tabCust.classList.add('active', 'fw-bold', 'text-success');
+        tabCust.classList.remove('text-secondary');
+        tabOrd.classList.remove('active', 'fw-bold', 'text-success');
+        tabOrd.classList.add('text-secondary');
+    } else {
+        secCust.style.display = 'none';
+        secOrd.style.display = 'block';
+        tabOrd.classList.add('active', 'fw-bold', 'text-success');
+        tabOrd.classList.remove('text-secondary');
+        tabCust.classList.remove('active', 'fw-bold', 'text-success');
+        tabCust.classList.add('text-secondary');
+    }
+}
 
 // פנייה לשרת למשיכת הלקוחות ממונגו
 async function loadCustomers() {
@@ -33,7 +63,20 @@ async function loadCustomers() {
     }
 }
 
-// פונקציית ציור הטבלה
+// פנייה לשרת למשיכת כל ההזמנות (רשומים + אורחים)
+async function loadAdminOrders() {
+    try {
+        const response = await fetch('/admin/orders');
+        if (!response.ok) throw new Error('שגיאה בשליפת ההזמנות');
+
+        orders = await response.json();
+        renderAdminOrders(orders);
+    } catch (error) {
+        console.error('שגיאה בטעינת הזמנות:', error);
+    }
+}
+
+// פונקציית ציור טבלת הלקוחות
 function renderCustomers(customersToShow) {
     const container = document.getElementById("customersContainer");
     if (!container) return;
@@ -47,33 +90,72 @@ function renderCustomers(customersToShow) {
 
     customersToShow.forEach(customer => {
         const customerId = customer._id;
-
-        // עיצוב לפי סוג הרשאה (אם אין שדה role, נניח שהוא לקוח רגיל)
         const role = customer.role || 'user';
         const roleBadge = role === 'admin'
             ? '<span class="badge bg-primary text-white">מנהל</span>'
             : '<span class="badge bg-secondary text-white">לקוח רגיל</span>';
 
-        // בתוך הפונקציה renderCustomers:
         container.innerHTML += `
-    <tr>
-        <td class="fw-semibold text-dark">
-            <i class="bi bi-person-circle text-muted me-2"></i>${customer.username || customer.name || 'ללא שם משתמש'}
-        </td>
-        <td dir="ltr" class="text-end text-muted">${customer.email || 'לא הוזן'}</td>
-        <td>${customer.phone || 'לא הוזן'}</td>
-        <td class="text-truncate" style="max-width: 200px;">${customer.address || customer.defaultAddress || 'לא הוזן'}</td>
-        <td>${roleBadge}</td>
-        <td class="text-center">
-            <button onclick="openEditModal('${customerId}')" class="btn btn-outline-primary btn-sm rounded-pill px-3">
-                <i class="bi bi-pencil me-1"></i> ערוך
-            </button>
-            <button onclick="deleteCustomer('${customerId}')" class="btn btn-outline-danger btn-sm rounded-pill px-3 ms-1">
-                <i class="bi bi-trash"></i>
-            </button>
-        </td>
-    </tr>
-`;
+        <tr>
+            <td class="fw-semibold text-dark">
+                <i class="bi bi-person-circle text-muted me-2"></i>${customer.username || customer.name || 'ללא שם משתמש'}
+            </td>
+            <td dir="ltr" class="text-end text-muted">${customer.email || 'לא הוזן'}</td>
+            <td>${customer.phone || 'לא הוזן'}</td>
+            <td class="text-truncate" style="max-width: 200px;">${customer.address || customer.defaultAddress || 'לא הוזן'}</td>
+            <td>${roleBadge}</td>
+            <td class="text-center">
+                <button onclick="openEditModal('${customerId}')" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                    <i class="bi bi-pencil me-1"></i> ערוך
+                </button>
+                <button onclick="deleteCustomer('${customerId}')" class="btn btn-outline-danger btn-sm rounded-pill px-3 ms-1">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        </tr>`;
+    });
+}
+
+// פונקציית ציור טבלת ההזמנות (תומכת באורחים ורשומים)
+function renderAdminOrders(ordersToShow) {
+    const tbody = document.getElementById('adminOrdersTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    if (ordersToShow.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">אין הזמנות במערכת כרגע.</td></tr>';
+        return;
+    }
+
+    ordersToShow.forEach(order => {
+        const row = document.createElement('tr');
+        
+        const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleString('he-IL') : 'לא ידוע';
+
+        // הבחנה בין אורח למשתמש רשום
+        let customerDisplay = 'לקוח לא ידוע';
+        if (order.username === 'אורח' || (order.customerDetails && order.customerDetails.name)) {
+            const guestName = order.customerDetails?.name || 'אורח';
+            const guestPhone = order.customerDetails?.phone ? ` (${order.customerDetails.phone})` : '';
+            customerDisplay = `<span class="badge bg-warning text-dark me-1">אורח</span> ${guestName}${guestPhone}`;
+        } else if (order.username) {
+            customerDisplay = `<span class="badge bg-success text-white me-1">רשום</span> ${order.username}`;
+        }
+
+        const itemsList = (order.items || []).map(item => `${item.name || 'מוצר'} (${item.quantity})`).join(', ');
+
+        row.innerHTML = `
+            <td class="fw-bold text-primary">${order.orderId || 'N/A'}</td>
+            <td>${customerDisplay}</td>
+            <td><small>${order.deliveryType === 'delivery' ? 'משלוח: ' + order.address : 'איסוף עצמי'}</small></td>
+            <td><small class="text-muted text-truncate d-inline-block" style="max-width: 200px;" title="${itemsList}">${itemsList}</small></td>
+            <td class="fw-bold text-success">₪${order.total || 0}</td>
+            <td><small>${dateStr}</small></td>
+            <td><span class="badge bg-info text-dark">${order.status || 'pending'}</span></td>
+        `;
+
+        tbody.appendChild(row);
     });
 }
 
@@ -81,13 +163,6 @@ function renderCustomers(customersToShow) {
 function filterCustomers(role) {
     currentFilter = role;
     applyFilters();
-}
-
-// עיצוב כפתורי הניווט
-function setNavBtn(active) {
-    const buttons = document.querySelectorAll(".category-btn");
-    buttons.forEach(btn => { btn.classList.remove("active", "fw-bold", "text-success") });
-    active.classList.add("active", "fw-bold", "text-success");
 }
 
 // חיפוש חכם 
@@ -110,7 +185,6 @@ function applyFilters() {
     renderCustomers(filtered);
 }
 
-
 // פתיחת חלון ריק (להוספת לקוח ידנית)
 function openAddCustomerModal() {
     currentEditId = null;
@@ -129,17 +203,17 @@ function openEditModal(id) {
     currentEditId = id;
     document.getElementById('modalTitle').innerText = 'ערוך פרטי לקוח';
 
-    document.getElementById('customerName').value = customer.name || '';
+    document.getElementById('customerName').value = customer.name || customer.username || '';
     document.getElementById('customerEmail').value = customer.email || '';
     document.getElementById('customerPhone').value = customer.phone || '';
-    document.getElementById('customerAddress').value = customer.address || '';
+    document.getElementById('customerAddress').value = customer.address || customer.defaultAddress || '';
     document.getElementById('customerRole').value = customer.role || 'user';
 
     const modal = new bootstrap.Modal(document.getElementById('customerModal'));
     modal.show();
 }
 
-// שמירת נתונים מול השרת (POST לחדש, PUT לעדכון)
+// שמירת נתונים מול השרת
 async function saveCustomer(event) {
     event.preventDefault();
 
@@ -154,14 +228,12 @@ async function saveCustomer(event) {
     try {
         let response;
         if (currentEditId) {
-            // עדכון לקוח קיים
             response = await fetch(`/users/${currentEditId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(customerData)
             });
         } else {
-            // יצירת לקוח חדש
             response = await fetch('/users', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -171,7 +243,6 @@ async function saveCustomer(event) {
 
         if (!response.ok) throw new Error('שגיאה בשמירת הלקוח בשרת');
 
-        // סגירת החלון וריענון הטבלה
         const modalEl = document.getElementById('customerModal');
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
         modalInstance.hide();
@@ -194,7 +265,6 @@ async function deleteCustomer(id) {
 
             if (!response.ok) throw new Error('שגיאה במחיקת הלקוח בשרת');
 
-            // ריענון הטבלה לאחר המחיקה
             await loadCustomers();
 
         } catch (error) {

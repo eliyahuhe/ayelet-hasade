@@ -1,0 +1,27 @@
+/* =========================================
+   עיצוב ללוח הבקרה וסטטיסטיקות מנהל
+========================================= */
+
+/* כרטיסיות ניווט (admin.html) */
+.admin-dashboard-card {
+    border-radius: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #ffffff;
+}
+
+.transition-hover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1) !important;
+    cursor: pointer;
+}
+
+/* עיצוב כרטיסיות נתונים (statistics.html) */
+.kpi-card {
+    border-radius: 12px;
+    padding: 15px 0;
+}
+
+/* שמירה על יחס נכון של מכולות הגרפים */
+.chart-container {
+    width: 100%;
+}

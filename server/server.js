@@ -208,7 +208,7 @@ app.put('/api/user/address', async (req, res) => {
   }
 });
 
-// שליפת היסטוריית ההזמנות של המשתמש (מתוקן)
+// שליפת היסטוריית ההזמנות של המשתמש
 app.get('/api/user/orders', async (req, res) => {
   try {
     const username = req.cookies?.username || req.query.username;
@@ -224,7 +224,6 @@ app.get('/api/user/orders', async (req, res) => {
 
     const stock = await db.collection('stock').find({}).toArray();
 
-    // מפת עזר להצלבה גמישה (ממפה לפי _id, לפי id מספרי, ולפי id כמחרוזת)
     const stockMap = {};
     stock.forEach(prod => {
       if (prod._id) stockMap[String(prod._id)] = prod;
@@ -262,8 +261,9 @@ app.get('/api/user/orders', async (req, res) => {
 });
 
 // ----------------------------------------------------
+// ניהול עגלה ומלאי
+// ----------------------------------------------------
 
-// שליפת העגלה השמורה של המשתמש מהשרת
 app.get('/cart', async (req, res) => {
   try {
     const username = req.cookies?.username || req.query.username;
@@ -279,7 +279,6 @@ app.get('/cart', async (req, res) => {
   }
 });
 
-// 3. עדכון עגלה
 app.post('/cart/update', async (req, res) => {
   try {
     const { username, productId, quantity } = req.body;
@@ -313,7 +312,6 @@ app.post('/cart/update', async (req, res) => {
   }
 });
 
-// 4. ניקוי עגלה
 app.post('/cart/clear', async (req, res) => {
   try {
     const { username } = req.body;
@@ -329,7 +327,6 @@ app.post('/cart/clear', async (req, res) => {
   }
 });
 
-// 5. משיכת מוצרים
 app.get('/products', async (req, res) => {
   try {
     const db = getDB();
@@ -342,7 +339,7 @@ app.get('/products', async (req, res) => {
   }
 });
 
-// 6. ביצוע הזמנה
+// ביצוע הזמנה
 app.post('/orders', async (req, res) => {
   try {
     const { username, guestName, guestPhone, items, deliveryType, address, total } = req.body;
@@ -421,66 +418,98 @@ app.post('/orders', async (req, res) => {
   }
 });
 
-app.get('/html/admin.html', requireAdmin, (req, res) => {
-  res.sendFile(path.join(__dirname, '../html/admin.html'));
-});
-
-// הרשאות ADMIN
-app.post('/products', async (req, res) => {
+// ==========================================
+// API סטטיסטיקות למנהל (המעודכן והמתוקן)
+// ==========================================
+app.get('/api/admin/statistics', async (req, res) => {
   try {
-    const db = getDB();
-    const stockCollection = db.collection('stock');
-    const newProduct = req.body;
+    const { period } = req.query;
+    let dateFilter = {};
+    const now = new Date();
 
-    const result = await stockCollection.insertOne(newProduct);
-    res.status(201).json({ message: 'המוצר נוסף בהצלחה', id: result.insertedId });
-  } catch (error) {
-    console.error('Error adding product:', error);
-    res.status(500).json({ error: 'שגיאה בהוספת מוצר למלאי' });
-  }
-});
-
-app.put('/products/:id', async (req, res) => {
-  try {
-    const db = getDB();
-    const stockCollection = db.collection('stock');
-    const productId = req.params.id;
-    const updatedData = req.body;
-
-    delete updatedData._id;
-
-    const result = await stockCollection.updateOne(
-      { _id: new ObjectId(productId) },
-      { $set: updatedData }
-    );
-
-    if (result.matchedCount === 0) {
-      return res.status(404).json({ error: 'מוצר לא נמצא' });
+    if (period === 'today') {
+      const startOfDay = new Date(now.setHours(0, 0, 0, 0));
+      dateFilter = { createdAt: { $gte: startOfDay } };
+    } else if (period === 'week') {
+      const startOfWeek = new Date(now.setDate(now.getDate() - 7));
+      dateFilter = { createdAt: { $gte: startOfWeek } };
+    } else if (period === 'month') {
+      const startOfMonth = new Date(now.setDate(now.getDate() - 30));
+      dateFilter = { createdAt: { $gte: startOfMonth } };
     }
 
-    res.status(200).json({ message: 'המוצר עודכן בהצלחה' });
-  } catch (error) {
-    console.error('Error updating product:', error);
-    res.status(500).json({ error: 'שגיאה בעדכון המוצר' });
-  }
-});
-
-app.delete('/products/:id', async (req, res) => {
-  try {
     const db = getDB();
-    const stockCollection = db.collection('stock');
-    const productId = req.params.id;
+    const Order = db.collection('orders');
+    const User = db.collection('customers');
+    const Stock = db.collection('stock');
 
-    const result = await stockCollection.deleteOne({ _id: new ObjectId(productId) });
+    const orders = await Order.find(dateFilter).toArray();
+    const totalOrders = orders.length;
+    const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+    const avgOrder = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
 
-    if (result.deletedCount === 0) {
-      return res.status(404).json({ error: 'מוצר לא נמצא למחיקה' });
-    }
+    const totalUsers = await User.countDocuments({ role: { $ne: 'admin' } });
 
-    res.status(200).json({ message: 'המוצר נמחק בהצלחה' });
+    const revenueByDay = await Order.aggregate([
+      { $match: dateFilter },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          totalAmount: { $sum: "$total" }
+        }
+      },
+      { $sort: { "_id": 1 } }
+    ]).toArray();
+
+    // 1. קיבוץ המכירות לפי ID של המוצר מתוך עגלת ההזמנה
+    const rawProductStats = await Order.aggregate([
+      { $match: dateFilter },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: { $ifNull: ["$items.id", "$items.productId"] },
+          totalSold: { $sum: "$items.quantity" },
+          revenue: { $sum: { $multiply: ["$items.quantity", { $ifNull: ["$items.price", 0] }] } }
+        }
+      },
+      { $sort: { totalSold: -1 } }
+    ]).toArray();
+
+    // 2. שליפת המלאי ויצירת "מילון" שמתרגם ID לשם ומחיר
+    const stockItems = await Stock.find({}).toArray();
+    const stockMap = {};
+    stockItems.forEach(prod => {
+      if (prod._id) stockMap[String(prod._id)] = prod;
+      if (prod.id !== undefined) stockMap[String(prod.id)] = prod;
+    });
+
+    // 3. החלפת ה-ID בשם האמיתי וחישוב ההכנסה ממוצר בעזרת מחירון המלאי
+    const productStats = rawProductStats.map(stat => {
+      const stringId = stat._id ? String(stat._id) : '';
+      const productInfo = stockMap[stringId] || {};
+
+      const currentPrice = productInfo.price ? Number(productInfo.price) : 0;
+      const actualRevenue = stat.revenue > 0 ? stat.revenue : (stat.totalSold * currentPrice);
+
+      return {
+        _id: productInfo.name || `מוצר נמחק (ID: ${stringId})`,
+        totalSold: stat.totalSold,
+        revenue: actualRevenue
+      };
+    });
+
+    res.json({
+      totalRevenue,
+      totalOrders,
+      avgOrder,
+      totalUsers,
+      revenueByDay,
+      productStats
+    });
+
   } catch (error) {
-    console.error('Error deleting product:', error);
-    res.status(500).json({ error: 'שגיאה במחיקת המוצר' });
+    console.error("שגיאה בהפקת סטטיסטיקות:", error);
+    res.status(500).json({ message: "שגיאת שרת פנימית" });
   }
 });
 
@@ -572,7 +601,69 @@ app.delete('/users/:id', async (req, res) => {
   }
 });
 
-// נתיבי Static Files
+// נתיבי Static Files והרשאות Admin
+app.get('/html/admin.html', requireAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, '../html/admin.html'));
+});
+
+app.post('/products', async (req, res) => {
+  try {
+    const db = getDB();
+    const stockCollection = db.collection('stock');
+    const newProduct = req.body;
+
+    const result = await stockCollection.insertOne(newProduct);
+    res.status(201).json({ message: 'המוצר נוסף בהצלחה', id: result.insertedId });
+  } catch (error) {
+    console.error('Error adding product:', error);
+    res.status(500).json({ error: 'שגיאה בהוספת מוצר למלאי' });
+  }
+});
+
+app.put('/products/:id', async (req, res) => {
+  try {
+    const db = getDB();
+    const stockCollection = db.collection('stock');
+    const productId = req.params.id;
+    const updatedData = req.body;
+
+    delete updatedData._id;
+
+    const result = await stockCollection.updateOne(
+      { _id: new ObjectId(productId) },
+      { $set: updatedData }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'מוצר לא נמצא' });
+    }
+
+    res.status(200).json({ message: 'המוצר עודכן בהצלחה' });
+  } catch (error) {
+    console.error('Error updating product:', error);
+    res.status(500).json({ error: 'שגיאה בעדכון המוצר' });
+  }
+});
+
+app.delete('/products/:id', async (req, res) => {
+  try {
+    const db = getDB();
+    const stockCollection = db.collection('stock');
+    const productId = req.params.id;
+
+    const result = await stockCollection.deleteOne({ _id: new ObjectId(productId) });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'מוצר לא נמצא למחיקה' });
+    }
+
+    res.status(200).json({ message: 'המוצר נמחק בהצלחה' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({ error: 'שגיאה במחיקת המוצר' });
+  }
+});
+
 app.use('/html', express.static(path.join(__dirname, '../html')));
 app.use('/css', express.static(path.join(__dirname, '../css')));
 app.use('/js', express.static(path.join(__dirname, '../JS')));
@@ -582,6 +673,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../html/login.html'));
 });
 
+// הפעלת השרת
 connectDB().then(() => {
   const server = app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}...`);
