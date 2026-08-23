@@ -15,11 +15,10 @@ async function fetchStatistics() {
         
         const data = await response.json();
         
-        // 1. עדכון כרטיסיות נתוני העל
+        // 1. עדכון כרטיסיות נתוני העל (ללא ספירת לקוחות)
         document.getElementById('totalRevenueBox').innerText = `₪${(data.totalRevenue || 0).toLocaleString()}`;
         document.getElementById('totalOrdersBox').innerText = (data.totalOrders || 0).toLocaleString();
         document.getElementById('avgOrderBox').innerText = `₪${(data.avgOrder || 0).toLocaleString()}`;
-        document.getElementById('totalUsersBox').innerText = (data.totalUsers || 0).toLocaleString();
 
         // 2. עיבוד נתוני הגרף היומי (מכירות)
         const revenueLabels = data.revenueByDay.map(item => item._id);
@@ -33,7 +32,7 @@ async function fetchStatistics() {
 
         // 3. חילוץ נתוני המוצרים לגרפים (5 המובילים בלבד)
         const allProducts = data.productStats || [];
-        const top5 = allProducts.slice(0, 5); // חותך רק את ה-5 הראשונים
+        const top5 = allProducts.slice(0, 5);
         
         const prodLabels = top5.map(item => item._id);
         const prodValues = top5.map(item => item.totalSold);
@@ -59,7 +58,7 @@ function renderProductsTable(products) {
     const tbody = document.getElementById('productsTableBody');
     if (!tbody) return;
     
-    tbody.innerHTML = ''; // ניקוי הטבלה לפני מילוי מחדש
+    tbody.innerHTML = '';
 
     if (products.length === 0) {
         tbody.innerHTML = '<tr><td colspan="3" class="text-muted">אין נתוני מכירות לתקופה זו.</td></tr>';
@@ -69,7 +68,6 @@ function renderProductsTable(products) {
     products.forEach(product => {
         const row = document.createElement('tr');
         
-        // תמיכה בהצגת הכנסה
         const revenueText = (product.revenue && product.revenue > 0) 
                             ? `₪${product.revenue.toLocaleString()}` 
                             : '-';
