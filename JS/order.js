@@ -103,6 +103,7 @@ function checkGuestStatus() {
 }
 
 // טעינת כתובת ברירת המחדל של המשתמש ומילוי אוטומטי
+// טעינת כתובת ברירת המחדל של המשתמש ומילוי אוטומטי
 async function autofillDefaultAddress() {
   const username = localStorage.getItem('username');
   if (!username) return;
@@ -115,15 +116,32 @@ async function autofillDefaultAddress() {
     if (data.defaultAddress) {
       window.userDefaultAddress = data.defaultAddress;
       const parts = data.defaultAddress.split(',').map(s => s.trim());
-      if (parts[0]) document.getElementById("addrCity").value = parts[0];
+
+      // 1. הזנת עיר ושחרור הנעילה של שדה הרחוב
+      if (parts[0]) {
+        document.getElementById("cityName").value = parts[0];
+        document.getElementById("streetName").disabled = false;
+      }
+
+      // 2. הזנת רחוב ומספר בית
       if (parts[1]) {
         const streetAndHouse = parts[1].split(' ');
         const house = streetAndHouse.pop();
-        document.getElementById("addrStreet").value = streetAndHouse.join(' ');
-        document.getElementById("addrHouse").value = house || '';
+        document.getElementById("streetName").value = streetAndHouse.join(' ');
+        document.getElementById("houseNumber").value = house || '';
       }
-      if (parts[2]) {
-        document.getElementById("addrApt").value = parts[2].replace('דירה', '').trim();
+
+      // 3. טיפול בשאריות (קומה, כניסה או תמיכה ב"דירה" מהגרסה הישנה)
+      if (parts.length > 2) {
+        parts.slice(2).forEach(part => {
+          if (part.includes('כניסה')) {
+            document.getElementById("entrance").value = part.replace('כניסה', '').trim();
+          } else if (part.includes('קומה')) {
+            document.getElementById("floor").value = part.replace('קומה', '').trim();
+          } else if (part.includes('דירה')) {
+            document.getElementById("entrance").value = part.replace('דירה', '').trim();
+          }
+        });
       }
     }
   } catch (err) {
