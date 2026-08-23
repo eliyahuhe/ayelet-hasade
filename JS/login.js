@@ -45,16 +45,42 @@ async function login(event) {
     }
 }
 
+// משיכת מזג אוויר מזיהוי מיקום מדויק בעזרת Open-Meteo API
 async function fetchWeather() {
     const el = document.getElementById('weather-info');
     if (!el) return;
-    try {
-        const res = await fetch('https://wttr.in/Israel?format=3');
-        const text = await res.text();
-        if (text.length > 50 || text.includes('{')) throw new Error();
-        el.innerText = text.split(':')[1]?.trim().replace('+', '') || text;
-    } catch (e) {
-        el.innerText = (new Date().getHours() > 18 ? "🌙 16°C" : "☀️ 22°C");
+
+    async function getWeather(lat, lon) {
+        try {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data && data.current_weather) {
+                const temp = Math.round(data.current_weather.temperature);
+                el.innerText = `☀️ ${temp}°C`;
+            } else {
+                el.innerText = '☀️ --°C';
+            }
+        } catch (e) {
+            console.error('שגיאה במשיכת מזג אוויר:', e);
+            el.innerText = '☀️ --°C';
+        }
+    }
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                // המשתמש אישר מיקום - מביא מעלות לפי נ"צ מדויק
+                getWeather(pos.coords.latitude, pos.coords.longitude);
+            },
+            () => {
+                // המשתמש סירב למיקום - מביא מעלות של ישראל (מרכז) כברירת מחדל
+                getWeather(32.0853, 34.7818);
+            }
+        );
+    } else {
+        getWeather(32.0853, 34.7818);
     }
 }
 
