@@ -208,6 +208,7 @@ app.put('/api/user/address', async (req, res) => {
   }
 });
 
+// שליפת היסטוריית ההזמנות של המשתמש (מתוקן)
 app.get('/api/user/orders', async (req, res) => {
   try {
     const username = req.cookies?.username || req.query.username;
@@ -223,22 +224,25 @@ app.get('/api/user/orders', async (req, res) => {
 
     const stock = await db.collection('stock').find({}).toArray();
 
+    // מפת עזר להצלבה גמישה (ממפה לפי _id, לפי id מספרי, ולפי id כמחרוזת)
     const stockMap = {};
     stock.forEach(prod => {
-      stockMap[Number(prod.id)] = prod;
+      if (prod._id) stockMap[String(prod._id)] = prod;
+      if (prod.id !== undefined) stockMap[String(prod.id)] = prod;
     });
 
     const enrichedOrders = orders.map(order => {
       const enrichedItems = (order.items || []).map(item => {
-        const prodId = Number(item.id || item.productId);
-        const productInfo = stockMap[prodId] || {};
+        const rawId = item.id !== undefined ? item.id : item.productId;
+        const stringId = rawId ? String(rawId) : '';
+        const productInfo = stockMap[stringId] || {};
 
-        const name = item.name || productInfo.name || `מוצר #${prodId}`;
+        const name = item.name || productInfo.name || (rawId ? `מוצר #${rawId}` : 'מוצר');
         const price = Number(item.price !== undefined ? item.price : (productInfo.price || 0));
 
         return {
           ...item,
-          id: prodId,
+          id: rawId,
           name: name,
           price: price
         };

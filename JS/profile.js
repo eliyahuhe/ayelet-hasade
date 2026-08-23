@@ -127,7 +127,7 @@ function toggleEditAddress() {
   document.getElementById('addressEditBox').classList.toggle('d-none');
 }
 
-// 5. טעינת היסטוריית ההזמנות מה-DB
+// 5. טעינת היסטוריית ההזמנות מה-DB (מתוקן)
 async function loadUserOrders() {
   const accordion = document.getElementById('ordersAccordion');
   const noOrdersAlert = document.getElementById('noOrdersAlert');
@@ -156,10 +156,10 @@ async function loadUserOrders() {
 
         return `
           <tr>
-            <td class="text-start">${item.name}</td>
-            <td class="text-center">${itemQty}</td>
+            <td class="text-start fw-semibold">${item.name || 'מוצר'}</td>
+            <td class="text-center">${itemQty} ק״ג</td>
             <td class="text-center">₪${itemPrice.toFixed(2)}</td>
-            <td class="text-start">₪${itemTotal.toFixed(2)}</td>
+            <td class="text-start fw-bold" style="color: rgb(0, 83, 80);">₪${itemTotal.toFixed(2)}</td>
           </tr>
         `;
       }).join('');
@@ -169,9 +169,9 @@ async function loadUserOrders() {
         : 'איסוף עצמי (משק 46, ברכיה)';
 
       return `
-        <div class="accordion-item mb-3 border rounded-3 overflow-hidden">
+        <div class="accordion-item mb-3 border rounded-3 overflow-hidden shadow-sm">
           <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}">
+            <button class="accordion-button collapsed py-3" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}">
               <div class="d-flex justify-content-between align-items-center w-100 me-3">
                 <div>
                   <strong>הזמנה #${order.orderId || (index + 1)}</strong>
@@ -182,16 +182,16 @@ async function loadUserOrders() {
             </button>
           </h2>
           <div id="${collapseId}" class="accordion-collapse collapse" data-bs-parent="#ordersAccordion">
-            <div class="accordion-body">
+            <div class="accordion-body bg-light-subtle">
               <p class="mb-2"><strong>סוג קבלה:</strong> ${deliveryDetails}</p>
               
               <div class="table-responsive">
-                <table class="table table-sm align-middle mt-2">
+                <table class="table table-sm align-middle mt-2 bg-white rounded shadow-sm">
                   <thead class="table-light">
                     <tr>
                       <th class="text-start">מוצר</th>
                       <th class="text-center">כמות</th>
-                      <th class="text-center">מחיר ליחידה</th>
+                      <th class="text-center">מחיר לק״ג</th>
                       <th class="text-start">סה״כ</th>
                     </tr>
                   </thead>

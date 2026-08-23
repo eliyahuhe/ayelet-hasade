@@ -106,14 +106,15 @@
 
         <!-- חלק 1: פרטים אישיים -->
         <div class="profile-card">
-            <div class="profile-header d-flex justify-content-between align-items-center">
+            <div class="profile-header text-center">
                 <h3><i class="bi bi-person-vcard me-2"></i>הפרטים שלי</h3>
             </div>
 
-            <div class="row g-3">
+            <!-- מרכוז השדות באמצעות justify-content-center -->
+            <div class="row g-3 justify-content-center">
                 <!-- אימייל + עריכת אימייל -->
-                <div class="col-md-3">
-                    <div class="info-label mb-1">דואר אלקטרוני</div>
+                <div class="col-md-4">
+                    <div class="info-label mb-1 text-center">דואר אלקטרוני</div>
                     <div class="info-value">
                         <span id="emailDisplay">user@example.com</span>
                         <button class="btn btn-sm btn-link text-success p-0 ms-2" onclick="toggleEditEmail()"
@@ -133,8 +134,8 @@
                 </div>
 
                 <!-- טלפון + עריכה -->
-                <div class="col-md-3">
-                    <div class="info-label mb-1">מספר טלפון</div>
+                <div class="col-md-4">
+                    <div class="info-label mb-1 text-center">מספר טלפון</div>
                     <div class="info-value">
                         <span id="phoneDisplay">050-1234567</span>
                         <button class="btn btn-sm btn-link text-success p-0 ms-2" onclick="toggleEditPhone()"
@@ -154,8 +155,8 @@
                 </div>
 
                 <!-- כתובת ברירת מחדל + עריכה -->
-                <div class="col-md-3">
-                    <div class="info-label mb-1">כתובת למשלוח (ברירת מחדל)</div>
+                <div class="col-md-4">
+                    <div class="info-label mb-1 text-center">כתובת למשלוח (ברירת מחדל)</div>
                     <div class="info-value">
                         <span id="addressDisplay" class="text-truncate" style="max-width: 140px;">לא הוגדרה כתובת</span>
                         <button class="btn btn-sm btn-link text-success p-0 ms-2 flex-shrink-0"
@@ -174,17 +175,12 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="col-md-3">
-                    <div class="info-label mb-1">וותק לקוח</div>
-                    <div class="info-value" id="profileMemberSince">לקוח מ-2024</div>
-                </div>
             </div>
         </div>
 
         <!-- חלק 2: היסטוריית הזמנות -->
         <div class="profile-card">
-            <div class="profile-header">
+            <div class="profile-header text-center">
                 <h3><i class="bi bi-box-seam me-2"></i>היסטוריית הזמנות</h3>
             </div>
 
@@ -204,25 +200,27 @@
         <div class="container">
             <div class="row align-items-center justify-content-between gy-4">
 
-                <div class="col-md-6 footer-col-reset text-md-start text-center">
-                    <h6 class="fw-bold mb-3 text-accent">יצירת קשר</h6>
-                    <div class="d-flex flex-column gap-2 small">
-                        <div><i class="bi bi-geo-fill me-2 text-accent"></i> משק 46, ברכיה</div>
-                        <div><i class="bi bi-telephone-fill me-2 text-accent"></i> 055-2652245</div>
-                        <div><i class="bi bi-envelope-fill me-2 text-accent"></i> info@ayelet.co.il</div>
-                        <div><i class="bi bi-clock-fill me-2 text-accent"></i> א׳–ה׳ 09:00–20:00 | ו׳ 09:00–15:00</div>
-                    </div>
-                </div>
-
+                <!-- לוגו + אודות (מימין) -->
                 <div
-                    class="col-md-5 footer-col-reset text-md-end text-center d-flex align-items-center justify-content-md-end justify-content-center gap-3">
+                    class="col-md-5 footer-col-reset text-md-start text-center d-flex align-items-center justify-content-md-start justify-content-center gap-3">
+                    <img src="/image/logo.png" class="rounded-circle border border-white footer-logo-img flex-shrink-0">
                     <div>
                         <span class="fw-bold fs-5 d-block text-white">איילת השדה</span>
                         <p class="small mt-1 text-white-50 mb-0">
                             עסק משפחתי, דור שלישי לחקלאות ישראלית. תוצרת איכותית ישר מהחקלאי לצרכן.
                         </p>
                     </div>
-                    <img src="/image/logo.png" class="rounded-circle border border-white footer-logo-img flex-shrink-0">
+                </div>
+
+                <!-- יצירת קשר (משמאל) -->
+                <div class="col-md-6 footer-col-reset text-md-end text-center">
+                    <h6 class="fw-bold mb-3 text-accent">יצירת קשר</h6>
+                    <div class="d-flex flex-column gap-2 small align-items-md-end align-items-center">
+                        <div>משק 46, ברכיה <i class="bi bi-geo-fill ms-2 text-accent"></i></div>
+                        <div>055-2652245 <i class="bi bi-telephone-fill ms-2 text-accent"></i></div>
+                        <div>info@ayelet.co.il <i class="bi bi-envelope-fill ms-2 text-accent"></i></div>
+                        <div>א׳–ה׳ 09:00–20:00 | ו׳ 09:00–15:00 <i class="bi bi-clock-fill ms-2 text-accent"></i></div>
+                    </div>
                 </div>
 
             </div>
