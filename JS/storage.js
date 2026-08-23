@@ -26,41 +26,44 @@ function renderCart() {
     }
 
     cart.forEach(item => {
-        let product = products.find(p => p.id === item.id);
+        let product = products.find(p => (p._id === item.id || p.id === item.id));
         if (!product) return;
+
         total += item.quantity * product.price;
+
+        let unitText = product.unit || 'ק״ג';
+        if (unitText === 'יחידות' || unitText === 'מארזים') unitText = "יח'";
+
+        let displayQuantity = parseFloat(item.quantity);
+
         container.innerHTML += `<div class="d-flex align-items-center border-bottom py-3 position-relative" style="padding-left: 35px;">
     
-    <!-- כפתור מחיקה -->
    <button class="btn p-0 text-danger position-absolute"
         style="left: 5px; top: 50%; transform: translateY(-50%); text-decoration: none;"
-        onclick="deleteProduct(${item.id})"
+        onclick="deleteProduct('${item.id}')"
         title="הסר מוצר">
     <i class="bi bi-trash"></i>
 </button>
 
     <!-- תמונה -->
-    <img src="/image/cart/${product.name}.JPG" onerror="this.onerror=null; this.src='https://via.placeholder.com/50';" alt="${product.name}" class="rounded-circle flex-shrink-0" style="width: 38px; height: 38px; object-fit: cover; margin-left: 10px;">
+    <img src="${product.image}" onerror="this.onerror=null; this.src='https://via.placeholder.com/50';" alt="${product.name}" class="rounded-circle flex-shrink-0" style="width: 38px; height: 38px; object-fit: cover; margin-left: 10px;">
 
-    <!-- שם המוצר -->
     <div class="fw-semibold small text-dark flex-grow-1 text-truncate" style="min-width: 0;" title="${product.name}">
         ${product.name}
     </div>
 
-    <!-- פלוס/מינוס -->
    <div class="d-flex align-items-center border rounded-pill flex-shrink-0 bg-light ms-2 qty-control">
     <button class="btn btn-sm px-2 py-0 border-0 text-muted"
-        onclick="addToCart(${item.id})">+</button>
+        onclick="addToCart('${item.id}')">+</button>
 
-    <div class="flex-grow-1 text-center small fw-semibold" style="line-height: 1;">
-        ${item.quantity}
+    <div class="flex-grow-1 text-center small fw-semibold" style="line-height: 1; padding: 0 4px;">
+        ${displayQuantity} <span style="font-size: 0.8em; color:#666;">${unitText}</span>
     </div>
 
     <button class="btn btn-sm px-2 py-0 border-0 text-muted"
-        onclick="removeFromCart(${item.id})">-</button>
+        onclick="removeFromCart('${item.id}')">-</button>
 </div>
 
-    <!-- מחיר -->
     <div class="fw-bold small text-end flex-shrink-0" style="color:rgb(0, 83, 80); width: 45px;">
         ₪${parseFloat(item.quantity * product.price).toFixed(2)}
     </div>
@@ -72,16 +75,15 @@ function renderCart() {
     if (cartSum) cartSum.textContent = "₪" + total.toFixed(2);
 }
 
-/* קבלת מוצרים מ-DATA */
 function getCart() {
     const raw = JSON.parse(localStorage.getItem("products")) || [];
-    // מיזוג כניסות כפולות לאותו מוצר
     const map = {};
     raw.forEach(item => {
-        if (map[item.id] !== undefined) {
-            map[item.id].quantity += item.quantity;
+        const key = String(item.id);
+        if (map[key] !== undefined) {
+            map[key].quantity += item.quantity;
         } else {
-            map[item.id] = { ...item };
+            map[key] = { ...item };
         }
     });
     const merged = Object.values(map);
@@ -91,10 +93,36 @@ function getCart() {
     return merged;
 }
 
-// --- שינוי: פונקציית סנכרון מול השרת ---
+// טעינת עגלה התחלתית מ-MongoDB עבור משתמש מחובר
+async function loadUserCartFromServer() {
+    const cookieString = document.cookie.split(';').find(row => row.trim().startsWith('username='));
+    const username = cookieString ? decodeURIComponent(cookieString.split('=')[1]) : localStorage.getItem('username');
+
+    if (!username) return;
+
+    try {
+        const response = await fetch('/cart');
+        if (response.ok) {
+            const serverCart = await response.json();
+            if (Array.isArray(serverCart)) {
+                const formattedCart = serverCart.map(item => ({
+                    id: item.productId || item.id,
+                    quantity: item.quantity
+                }));
+                localStorage.setItem("products", JSON.stringify(formattedCart));
+                if (typeof renderCart === 'function') renderCart();
+            }
+        }
+    } catch (err) {
+        console.error('שגיאה בשליפת עגלת המשתמש מהשרת:', err);
+    }
+}
+
 async function syncCartWithServer(productId, quantity) {
-    const username = localStorage.getItem('username');
-    if (!username) return; // אורח - אינו מסנכרן מול השרת
+    const cookieString = document.cookie.split(';').find(row => row.trim().startsWith('username='));
+    const username = cookieString ? decodeURIComponent(cookieString.split('=')[1]) : localStorage.getItem('username');
+
+    if (!username) return;
 
     try {
         await fetch('/cart/update', {
@@ -107,63 +135,84 @@ async function syncCartWithServer(productId, quantity) {
     }
 }
 
-/* שמירת מוצרים ב-localStorage וסנכרון ל-MongoDB */
 function saveCart(cartProducts) {
     localStorage.setItem("products", JSON.stringify(cartProducts));
 }
 
-/* הוספה לעגלה */
 function addToCart(id) {
     let cart = getCart();
-    let originalProduct = products.find(p => p.id === id);
+    let originalProduct = products.find(p => (p._id === id || p.id === id));
     let product = cart.find(p => p.id === id);
 
     if (!originalProduct) return;
 
-    let stock = originalProduct.stock;
+    let stock = originalProduct.stock !== undefined ? originalProduct.stock : 100;
     let newQuantity = 0;
 
+    let amountToAdd = (originalProduct.unit === 'ק״ג' || !originalProduct.unit) ? 0.5 : 1;
+
     if (!product && stock > 0) {
-        newQuantity = 0.5;
+        newQuantity = amountToAdd;
         cart.push({ id: id, quantity: newQuantity });
-    } else if (product && product.quantity + 0.5 <= stock) {
-        product.quantity += 0.5;
+    } else if (product && product.quantity + amountToAdd <= stock) {
+        product.quantity += amountToAdd;
         newQuantity = product.quantity;
-    } else if ((product && product.quantity + 0.5 > stock) || (!product && stock <= 0)) {
-        alert("המוצר לא זמין יותר ממה שנבחר");
+    } else if ((product && product.quantity + amountToAdd > stock) || (!product && stock <= 0)) {
+        alert("המוצר לא זמין בכמות שביקשת במלאי");
         return;
     }
 
     saveCart(cart);
     syncCartWithServer(id, newQuantity);
-    renderCart();
+    if (typeof renderCart === 'function') {
+        renderCart();
+    }
 }
 
-/* הסרה מהעגלה */
 function removeFromCart(id) {
     let cart = getCart();
     let product = cart.find(p => p.id === id);
-    if (!product) return;
+    let originalProduct = products.find(p => (p._id === id || p.id === id));
 
+    if (!product || !originalProduct) return;
+
+    let amountToRemove = (originalProduct.unit === 'ק״ג' || !originalProduct.unit) ? 0.5 : 1;
     let newQuantity = 0;
-    if (product.quantity > 0.5) {
-        product.quantity -= 0.5;
+
+    if (product.quantity > amountToRemove) {
+        product.quantity -= amountToRemove;
         newQuantity = product.quantity;
     } else {
-        cart = cart.filter(p => p.id !== id);
+        cart = cart.filter(p => String(p.id) !== String(id));
         newQuantity = 0;
     }
 
     saveCart(cart);
     syncCartWithServer(id, newQuantity);
-    renderCart();
+    if (typeof renderCart === 'function') {
+        renderCart();
+    }
 }
 
-/* מחיקת מוצר כוללת */
 function deleteProduct(id) {
     let cart = getCart();
-    cart = cart.filter(p => p.id !== id);
+    cart = cart.filter(p => String(p.id) !== String(id));
     saveCart(cart);
-    syncCartWithServer(id, 0); // כמות 0 מוחקת מ-MongoDB
-    renderCart();
+    syncCartWithServer(id, 0);
+    if (typeof renderCart === 'function') {
+        renderCart();
+    }
 }
+
+// פונקציית התנתקות להרצה בלחיצה על כפתור Logout
+function logout() {
+    localStorage.removeItem('username');
+    localStorage.removeItem('products');
+    document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    window.location.href = '/html/login.html';
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadUserCartFromServer();
+});

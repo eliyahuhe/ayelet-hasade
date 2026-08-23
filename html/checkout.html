@@ -19,14 +19,12 @@
       <div class="container-fluid d-flex align-items-center justify-content-between flex-nowrap ms-4">
         <div class="text-white d-flex align-items-center gap-2 ms-4">
           <span id="userName"></span>
-          <button class="user-btn">
+          <a href="/html/profile.html" class="user-btn text-decoration-none">
             <i class="bi bi-person-circle fs-4"></i>
-          </button>
+          </a>
         </div>
         <div class="d-flex align-items-center gap-2 me-5 logo-container">
-          <span class="navbar-brand mb-0 fw-bold fs-4 text-white">
-            איילת השדה
-          </span>
+          <span class="navbar-brand mb-0 fw-bold fs-4 text-white">איילת השדה</span>
           <img src="/image/logo.png" class="rounded-circle border border-white border-1 logo-img">
         </div>
       </div>
@@ -60,6 +58,21 @@
         העגלה ריקה.
       </div>
 
+      <!-- פרטי אורח (מופיע רק אם המשתמש אינו מחובר) -->
+      <section id="guestFieldsBox" class="delivery-box mb-4 d-none">
+        <h5>פרטי מזמין (כניסת אורח)</h5>
+        <div class="row g-2">
+          <div class="col-md-6">
+            <label class="form-label small">שם מלא *</label>
+            <input type="text" id="guestName" class="form-control" placeholder="הכנס שם מלא">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small">מספר טלפון *</label>
+            <input type="tel" id="guestPhone" class="form-control" placeholder="הכנס מספר טלפון">
+          </div>
+        </div>
+      </section>
+      
       <section class="delivery-box">
         <h5>בחירת שיטת קבלה</h5>
 

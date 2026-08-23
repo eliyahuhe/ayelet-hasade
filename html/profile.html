@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>אזור אישי - איילת השדה</title>
+
+    <link rel="icon" href="/image/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/shop.css">
+    <link rel="stylesheet" href="/css/checkout.css">
+
+    <style>
+        .profile-card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+            margin-bottom: 30px;
+        }
+
+        .profile-header {
+            border-bottom: 2px solid #eaf4ef;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .profile-header h3 {
+            color: rgb(0, 83, 80);
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .info-label {
+            font-weight: 700;
+            color: rgb(0, 83, 80);
+            font-size: 0.95rem;
+        }
+
+        .info-value {
+            color: #333;
+            font-size: 1.05rem;
+            background-color: #f8fbf9;
+            padding: 10px 15px;
+            border-radius: 12px;
+            border: 1px solid #dce8e2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 48px;
+        }
+
+        .accordion-button:not(.collapsed) {
+            background-color: #f8fbf9;
+            color: rgb(0, 83, 80);
+            font-weight: 700;
+        }
+
+        .accordion-button:focus {
+            box-shadow: none;
+            border-color: rgba(0, 83, 80, 0.25);
+        }
+
+        .footer-clean {
+            background: rgb(30, 120, 100);
+            color: white;
+        }
+
+        .footer-clean .footer-col-reset {
+            transform: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- בר ראשי -->
+    <div class="sticky-top" dir="ltr">
+        <nav class="navbar navbar-main">
+            <div class="container-fluid d-flex align-items-center justify-content-between flex-nowrap ms-4">
+
+                <!-- פרטי משתמש וכפתורים -->
+                <div class="text-white d-flex align-items-center gap-2 ms-4">
+                    <span id="userName">אורח</span>
+                    <button class="user-btn">
+                        <i class="bi bi-person-circle fs-4"></i>
+                    </button>
+                    <a href="/html/shop.html" class="btn btn-outline-light ms-3 btn-sm rounded-pill">
+                        <i class="bi bi-shop"></i> חזרה לחנות
+                    </a>
+                </div>
+
+                <!-- לוגו + שם חנות -->
+                <div class="d-flex align-items-center gap-2 me-5 logo-container">
+                    <span class="navbar-brand mb-0 fw-bold fs-4 text-white">איילת השדה</span>
+                    <img src="/image/logo.png" class="rounded-circle border border-white border-1 logo-img">
+                </div>
+
+            </div>
+        </nav>
+    </div>
+
+    <main class="container my-5" dir="rtl">
+
+        <!-- חלק 1: פרטים אישיים -->
+        <div class="profile-card">
+            <div class="profile-header text-center">
+                <h3><i class="bi bi-person-vcard me-2"></i>הפרטים שלי</h3>
+            </div>
+
+            <!-- מרכוז השדות באמצעות justify-content-center -->
+            <div class="row g-3 justify-content-center">
+                <!-- אימייל + עריכת אימייל -->
+                <div class="col-md-4">
+                    <div class="info-label mb-1 text-center">דואר אלקטרוני</div>
+                    <div class="info-value">
+                        <span id="emailDisplay">user@example.com</span>
+                        <button class="btn btn-sm btn-link text-success p-0 ms-2" onclick="toggleEditEmail()"
+                            id="editEmailBtn">
+                            <i class="bi bi-pencil"></i> עריכה
+                        </button>
+                    </div>
+                    <!-- שדה עריכת אימייל -->
+                    <div id="emailEditBox" class="d-none mt-2">
+                        <div class="input-group input-group-sm">
+                            <input type="email" id="emailInput" class="form-control" value="user@example.com">
+                            <button class="btn btn-success" type="button" onclick="saveEmail()">שמירה</button>
+                            <button class="btn btn-outline-secondary" type="button"
+                                onclick="toggleEditEmail()">ביטול</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- טלפון + עריכה -->
+                <div class="col-md-4">
+                    <div class="info-label mb-1 text-center">מספר טלפון</div>
+                    <div class="info-value">
+                        <span id="phoneDisplay">050-1234567</span>
+                        <button class="btn btn-sm btn-link text-success p-0 ms-2" onclick="toggleEditPhone()"
+                            id="editPhoneBtn">
+                            <i class="bi bi-pencil"></i> עריכה
+                        </button>
+                    </div>
+                    <!-- שדה עריכת טלפון -->
+                    <div id="phoneEditBox" class="d-none mt-2">
+                        <div class="input-group input-group-sm">
+                            <input type="tel" id="phoneInput" class="form-control" value="050-1234567">
+                            <button class="btn btn-success" type="button" onclick="savePhone()">שמירה</button>
+                            <button class="btn btn-outline-secondary" type="button"
+                                onclick="toggleEditPhone()">ביטול</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- כתובת ברירת מחדל + עריכה -->
+                <div class="col-md-4">
+                    <div class="info-label mb-1 text-center">כתובת למשלוח (ברירת מחדל)</div>
+                    <div class="info-value">
+                        <span id="addressDisplay" class="text-truncate" style="max-width: 140px;">לא הוגדרה כתובת</span>
+                        <button class="btn btn-sm btn-link text-success p-0 ms-2 flex-shrink-0"
+                            onclick="toggleEditAddress()" id="editAddressBtn">
+                            <i class="bi bi-pencil"></i> עריכה
+                        </button>
+                    </div>
+                    <!-- שדה עריכת כתובת -->
+                    <div id="addressEditBox" class="d-none mt-2">
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="addressInput" class="form-control"
+                                placeholder="למשל: תל אביב, הירקון 5">
+                            <button class="btn btn-success" type="button" onclick="saveAddress()">שמירה</button>
+                            <button class="btn btn-outline-secondary" type="button"
+                                onclick="toggleEditAddress()">ביטול</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- חלק 2: היסטוריית הזמנות -->
+        <div class="profile-card">
+            <div class="profile-header text-center">
+                <h3><i class="bi bi-box-seam me-2"></i>היסטוריית הזמנות</h3>
+            </div>
+
+            <!-- אקורדיון להצגת הזמנות -->
+            <div class="accordion" id="ordersAccordion"></div>
+
+            <!-- הודעה במידה ואין הזמנות -->
+            <div id="noOrdersAlert" class="alert alert-warning text-center d-none">
+                עדיין לא ביצעת הזמנות באתר.
+            </div>
+        </div>
+
+    </main>
+
+    <!-- פוטר -->
+    <footer class="footer-clean mt-5 py-4" dir="rtl">
+        <div class="container">
+            <div class="row align-items-center justify-content-between gy-4">
+
+                <!-- לוגו + אודות (מימין) -->
+                <div
+                    class="col-md-5 footer-col-reset text-md-start text-center d-flex align-items-center justify-content-md-start justify-content-center gap-3">
+                    <img src="/image/logo.png" class="rounded-circle border border-white footer-logo-img flex-shrink-0">
+                    <div>
+                        <span class="fw-bold fs-5 d-block text-white">איילת השדה</span>
+                        <p class="small mt-1 text-white-50 mb-0">
+                            עסק משפחתי, דור שלישי לחקלאות ישראלית. תוצרת איכותית ישר מהחקלאי לצרכן.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- יצירת קשר (משמאל) -->
+                <div class="col-md-6 footer-col-reset text-md-end text-center">
+                    <h6 class="fw-bold mb-3 text-accent">יצירת קשר</h6>
+                    <div class="d-flex flex-column gap-2 small align-items-md-end align-items-center">
+                        <div>משק 46, ברכיה <i class="bi bi-geo-fill ms-2 text-accent"></i></div>
+                        <div>055-2652245 <i class="bi bi-telephone-fill ms-2 text-accent"></i></div>
+                        <div>info@ayelet.co.il <i class="bi bi-envelope-fill ms-2 text-accent"></i></div>
+                        <div>א׳–ה׳ 09:00–20:00 | ו׳ 09:00–15:00 <i class="bi bi-clock-fill ms-2 text-accent"></i></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <hr class="border-light opacity-25 my-3">
+
+            <div class="text-center small text-white-50">
+                © 2026 איילת השדה
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/storage.js"></script>
+    <script src="/js/shop.js"></script>
+    <script src="/js/profile.js"></script>
+
+</body>
+
+</html>
