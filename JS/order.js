@@ -1,226 +1,319 @@
-
 const CART_KEY = "products";
 
-
-// מחיר
 function formatPrice(price) {
   return "₪" + Number(price).toFixed(2);
 }
 
-
-// חישוב סכום כולל
 function getTotal(cart) {
   let total = 0;
-
   cart.forEach(item => {
-    let product = products.find(p => p.id === item.id);
+    // תמיכה ב-_id של מונגו לצד id מספרי ישן
+    let product = products.find(p => (p._id === item.id || p.id == item.id));
     if (!product) return;
-
     total += product.price * item.quantity;
   });
-
   return total;
 }
 
-
-// הצגת עגלה
 function showCart() {
-  let cart = getCart(); // מגיע מ-storage.js
+  let cart = getCart();
   let body = document.getElementById("cartBody");
   let totalBox = document.getElementById("grandTotal");
   let empty = document.getElementById("emptyCart");
   let btn = document.getElementById("submitBtn");
 
+  if (!body) return;
   body.innerHTML = "";
 
   if (cart.length === 0) {
-    empty.classList.remove("d-none");
-    btn.disabled = true;
-    totalBox.innerText = "₪0.00";
+    if (empty) empty.classList.remove("d-none");
+    if (btn) btn.disabled = true;
+    if (totalBox) totalBox.innerText = "₪0.00";
     return;
   }
 
-  empty.classList.add("d-none");
-  btn.disabled = false;
+  if (empty) empty.classList.add("d-none");
+  if (btn) btn.disabled = false;
 
   cart.forEach(item => {
-    let product = products.find(p => p.id === item.id);
+    // תמיכה ב-_id של מונגו לצד id מספרי ישן
+    let product = products.find(p => (p._id === item.id || p.id == item.id));
     if (!product) return;
 
-    let sum = product.price * item.quantity;
+    let unitText = product.unit || 'ק״ג';
+    if (unitText === 'יחידות' || unitText === 'מארזים') unitText = "יח'";
 
+    let sum = product.price * item.quantity;
     let row = document.createElement("tr");
 
     row.innerHTML = `
       <td></td>
-
       <td>
         <div class="product-cell">
-          <img
-            src="/image/cart/${product.name}.JPG"
-            onerror="this.src='https://via.placeholder.com/50'"
-            class="rounded-circle product-img"
-          >
+          <img src="${product.image}" onerror="this.src='https://via.placeholder.com/50'" class="rounded-circle product-img" style="width:38px; height:38px; object-fit:cover;">
           <span>${product.name}</span>
         </div>
       </td>
-
       <td>
         <div class="qty-box">
-          <!-- משתמש בפונקציות מ-storage.js -->
-          <button onclick="removeFromCart(${item.id})">−</button>
-          <span>${item.quantity} ק״ג</span>
-          <button onclick="addToCart(${item.id})">+</button>
+          <button onclick="removeFromCart('${item.id}')">−</button>
+          <span>${item.quantity} ${unitText}</span>
+          <button onclick="addToCart('${item.id}')">+</button>
         </div>
       </td>
-
       <td>${formatPrice(product.price)}</td>
       <td>${formatPrice(sum)}</td>
-
       <td>
-        <!-- גם מחיקה מגיעה מ-storage.js -->
-        <button class="delete-btn" onclick="deleteProduct(${item.id})">
+        <button class="delete-btn" onclick="deleteProduct('${item.id}')">
           <i class="bi bi-trash"></i>
         </button>
       </td>
     `;
-
     body.appendChild(row);
   });
 
-  totalBox.innerText = formatPrice(getTotal(cart));
+  if (totalBox) totalBox.innerText = formatPrice(getTotal(cart));
 }
 
-
-// כתובת משלוח על מה לחץ
 window.toggleAddress = function () {
-  let selected =
-    document.querySelector('input[name="deliveryType"]:checked').value;
-
+  let selected = document.querySelector('input[name="deliveryType"]:checked')?.value;
   let addressBox = document.getElementById("addressBox");
-  let addressInput = document.getElementById("deliveryAddress");
+
+  if (!addressBox) return;
 
   if (selected === "delivery") {
     addressBox.classList.remove("d-none");
-    addressInput.required = true;
   } else {
     addressBox.classList.add("d-none");
-    addressInput.required = false;
-    addressInput.value = "";
+    // איפוס השדות החדשים במעבר לאיסוף עצמי
+    if (document.getElementById("cityName")) document.getElementById("cityName").value = "";
+    if (document.getElementById("streetName")) document.getElementById("streetName").value = "";
+    if (document.getElementById("houseNumber")) document.getElementById("houseNumber").value = "";
+    if (document.getElementById("entrance")) document.getElementById("entrance").value = "";
+    if (document.getElementById("floor")) document.getElementById("floor").value = "";
   }
 };
 
+function checkGuestStatus() {
+  const username = localStorage.getItem('username');
+  const guestBox = document.getElementById("guestFieldsBox");
+  if (!username && guestBox) {
+    guestBox.classList.remove("d-none");
+  }
+}
+
+// טעינת כתובת ברירת המחדל של המשתמש ומילוי אוטומטי
+async function autofillDefaultAddress() {
+  const username = localStorage.getItem('username');
+  if (!username) return;
+
+  try {
+    const res = await fetch('/api/user/profile');
+    if (!res.ok) return;
+    const data = await res.json();
+
+    if (data.defaultAddress) {
+      window.userDefaultAddress = data.defaultAddress;
+      const parts = data.defaultAddress.split(',').map(s => s.trim());
+      if (parts[0]) document.getElementById("addrCity").value = parts[0];
+      if (parts[1]) {
+        const streetAndHouse = parts[1].split(' ');
+        const house = streetAndHouse.pop();
+        document.getElementById("addrStreet").value = streetAndHouse.join(' ');
+        document.getElementById("addrHouse").value = house || '';
+      }
+      if (parts[2]) {
+        document.getElementById("addrApt").value = parts[2].replace('דירה', '').trim();
+      }
+    }
+  } catch (err) {
+    console.error('שגיאה בשליפת כתובת ברירת מחדל:', err);
+  }
+}
+
 window.tempOrder = null;
 
-// =====================
-// ולידציה ת"ז (9 ספרות בלבד)
-// =====================
 function isValidID(id) {
   return /^\d{9}$/.test(id);
 }
 
+const submitBtn = document.getElementById("submitBtn");
+if (submitBtn) {
+  submitBtn.addEventListener("click", function (e) {
+    e.preventDefault();
 
-// אישור הזמנה
-document.getElementById("submitBtn").addEventListener("click", function (e) {
-  e.preventDefault();
+    let cart = getCart();
+    if (cart.length === 0) return;
 
-  let cart = getCart();
-  if (cart.length === 0) return;
+    const username = localStorage.getItem('username');
+    let guestName = "";
+    let guestPhone = "";
 
-  let deliveryType =
-    document.querySelector('input[name="deliveryType"]:checked').value;
+    if (!username) {
+      guestName = document.getElementById("guestName")?.value.trim();
+      guestPhone = document.getElementById("guestPhone")?.value.trim();
 
-  let address =
-    document.getElementById("deliveryAddress").value.trim();
+      if (!guestName || !guestPhone) {
+        alert("כאורח, חובה למלא שם מלא ומספר טלפון");
+        return;
+      }
+    }
 
-  if (deliveryType === "delivery" && address === "") {
-    alert("נא להזין כתובת למשלוח");
-    return;
-  }
+    let deliveryType = document.querySelector('input[name="deliveryType"]:checked')?.value;
+    let fullAddress = "";
 
-  window.tempOrder = { cart, deliveryType, address };
+    if (deliveryType === "delivery") {
+      // שימוש ב-IDs החדשים מה-HTML המשוכלל
+      let city = document.getElementById("cityName")?.value.trim() || "";
+      let street = document.getElementById("streetName")?.value.trim() || "";
+      let house = document.getElementById("houseNumber")?.value.trim() || "";
+      let entrance = document.getElementById("entrance")?.value.trim() || "";
+      let floor = document.getElementById("floor")?.value.trim() || "";
 
-  openPaymentPopup();
-});
+      if (!city || !street || !house) {
+        alert("נא למלא עיר, רחוב ומספר דירה למשלוח");
+        return;
+      }
 
-// =====================
-// POPUPS
-// =====================
+      // בניית כתובת מלאה כולל קומה וכניסה
+      fullAddress = `${city}, ${street} ${house}`;
+      if (entrance) fullAddress += `, כניסה ${entrance}`;
+      if (floor) fullAddress += `, קומה ${floor}`;
+    }
+
+    window.tempOrder = {
+      cart,
+      deliveryType,
+      address: fullAddress,
+      guestName,
+      guestPhone
+    };
+
+    openPaymentPopup();
+  });
+}
+
 window.openPaymentPopup = function () {
-  document.getElementById("paymentPopup").classList.remove("d-none");
+  const p = document.getElementById("paymentPopup");
+  if (p) p.classList.remove("d-none");
 };
 
 window.closePaymentPopup = function () {
-  document.getElementById("paymentPopup").classList.add("d-none");
+  const p = document.getElementById("paymentPopup");
+  if (p) p.classList.add("d-none");
 };
 
 window.closePopup = function () {
-  document.getElementById("popup").classList.add("d-none");
-  window.location.href = "login.html";
-
+  const p = document.getElementById("popup");
+  if (p) p.classList.add("d-none");
+  window.location.href = "/html/shop.html";
 };
 
+const paymentForm = document.getElementById("paymentForm");
+if (paymentForm) {
+  paymentForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-// תשלום 
-document.getElementById("paymentForm").addEventListener("submit", function (e) {
-  e.preventDefault();
+    if (!this.reportValidity()) return;
 
-  // מציג שגיאות שדות חובה 
-  if (!this.reportValidity()) return;
+    let tz = document.getElementById("cardTz").value.trim();
+    if (!isValidID(tz)) {
+      document.getElementById("cardTz").setCustomValidity("יש להזין 9 ספרות");
+      document.getElementById("cardTz").reportValidity();
+      return;
+    }
+    document.getElementById("cardTz").setCustomValidity("");
 
-  let tz = document.getElementById("cardTz").value.trim();
+    let data = window.tempOrder;
+    if (!data) return;
 
-  if (!isValidID(tz)) {
-    document.getElementById("cardTz").setCustomValidity("יש להזין 9 ספרות");
-    document.getElementById("cardTz").reportValidity();
-    return;
-  }
+    const submitBtn = this.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerText = "מעבד הזמנה...";
+    }
 
-  document.getElementById("cardTz").setCustomValidity("");
+    const username = localStorage.getItem('username') || 'אורח';
 
-  let data = window.tempOrder;
-  if (!data) return;
+    const orderData = {
+      username: username,
+      guestName: data.guestName,
+      guestPhone: data.guestPhone,
+      items: data.cart,
+      deliveryType: data.deliveryType,
+      address: data.address,
+      total: getTotal(data.cart)
+    };
 
-  let orderId = "ORD-" + Date.now();
+    try {
+      const response = await fetch('/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
 
-  let order = {
-    id: orderId,
-    items: data.cart,
-    deliveryType: data.deliveryType,
-    address: data.address,
-    total: getTotal(data.cart)
-  };
+      const result = await response.json();
 
-  localStorage.setItem("lastOrder", JSON.stringify(order));
+      if (!response.ok) {
+        alert(result.error || "אירעה שגיאה בביצוע ההזמנה");
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerText = "שלם עכשיו";
+        }
+        return;
+      }
 
-  // ריקון עגלה בלבד
-  localStorage.removeItem(CART_KEY);
+      if (username !== 'אורח' && data.deliveryType === 'delivery' && !window.userDefaultAddress) {
+        const wantToSave = confirm(`האם ברצונך לשמור את הכתובת "${data.address}" ככתובת ברירת המחדל למשלוחים הבאים?`);
+        if (wantToSave) {
+          try {
+            await fetch('/api/user/address', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ address: data.address })
+            });
+            window.userDefaultAddress = data.address;
+          } catch (e) {
+            console.error("שגיאה בשמירת כתובת ברירת מחדל:", e);
+          }
+        }
+      }
 
-  // ניקוי עגלה בשרת למשתמש רשום
-  const username = localStorage.getItem('username');
-  if (username) {
-    fetch('/cart/clear', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username })
-    }).catch(err => console.error('שגיאה בניקוי עגלה בשרת:', err));
-  }
+      localStorage.setItem("lastOrder", JSON.stringify({ ...orderData, id: result.orderId }));
+      localStorage.removeItem(CART_KEY);
 
-  closePaymentPopup();
+      closePaymentPopup();
 
-  document.getElementById("popupText").innerText =
-    "תודה שקנית אצלנו 🙏\n" +
-    "ההזמנה שלך התקבלה בהצלחה ותטופל בהקדם\n" +
-    "צוות איילת השדה כאן בשבילך תמיד 💚\n" +
-    "מספר הזמנה: " + orderId;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "שלם עכשיו";
+      }
 
-  document.getElementById("popup").classList.remove("d-none");
+      const popupText = document.getElementById("popupText");
+      if (popupText) {
+        popupText.innerText =
+          "תודה שקנית אצלנו 🙏\n" +
+          "ההזמנה שלך התקבלה בהצלחה ותטופל בהקדם\n" +
+          "צוות איילת השדה כאן בשבילך תמיד 💚\n" +
+          "מספר הזמנה: " + result.orderId;
+      }
 
-  showCart();
-});
+      const popup = document.getElementById("popup");
+      if (popup) popup.classList.remove("d-none");
 
+      showCart();
 
-// יעדכן את הטבלה בעמוד הזה
+    } catch (err) {
+      console.error('שגיאה בתקשורת מול השרת ביצירת הזמנה:', err);
+      alert('אירעה שגיאה בתקשורת עם השרת, אנא נסה שוב');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "שלם עכשיו";
+      }
+    }
+  });
+}
+
 window.renderCart = showCart;
 
 showCart();
@@ -309,4 +402,15 @@ streetInput.addEventListener('input', async (e) => {
   } catch (err) {
     console.error("שגיאה במשיכת רחוב:", err);
   }
+});
+document.addEventListener("DOMContentLoaded", async function () {
+  checkGuestStatus();
+  await autofillDefaultAddress();
+  if (typeof displayUserName === 'function') {
+    displayUserName();
+  }
+  if (typeof loadProducts === 'function') {
+    await loadProducts();
+  }
+  showCart();
 });

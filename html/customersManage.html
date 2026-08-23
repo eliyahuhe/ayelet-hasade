@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="he">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>איילת השדה - ניהול לקוחות</title>
+    <link rel="icon" href="/image/favicon.png">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    <!-- קבצי העיצוב שלנו -->
+    <link rel="stylesheet" href="/css/shop.css">
+    <link rel="stylesheet" href="/css/productsManage.css">
+    <link rel="stylesheet" href="/css/customersManage.css">
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"
+        defer></script>
+</head>
+
+<body>
+
+    <!-- בר ראשי -->
+    <div class="sticky-top">
+        <nav class="navbar navbar-main">
+            <div class="container-fluid d-flex align-items-center justify-content-between flex-nowrap ms-4">
+
+                <!-- שם מנהל וכפתורי ניהול -->
+                <div class="text-white d-flex align-items-center gap-2 ms-4">
+                    <span id="userName">מנהל מערכת</span>
+                    <button class="user-btn">
+                        <i class="bi bi-person-circle fs-4"></i>
+                    </button>
+                    <!-- כפתור חזרה לחנות/מוצרים -->
+                    <a href="productsManage.html" class="btn btn-warning ms-5 fw-bold">
+                        <i class="bi bi-box-seam"></i> ניהול מוצרים
+                    </a>
+                </div>
+
+                <!-- חיפוש באמצע -->
+                <form class="d-flex justify-content-center ms-5 search-form" role="search" dir="rtl">
+                    <input id="searchInput" class="form-control rounded-pill me-2" type="search"
+                        placeholder="חיפוש לקוח לפי שם, אימייל או טלפון..." aria-label="Search" />
+                </form>
+
+                <!-- לוגו + שם חנות -->
+                <div class="d-flex align-items-center gap-2 me-5 logo-container">
+                    <span class="navbar-brand mb-0 fw-bold fs-4 text-white">
+                        איילת השדה - ניהול
+                    </span>
+                    <img src="/image/logo.png" alt="לוגו איילת השדה"
+                        class="rounded-circle border border-white border-1 logo-img">
+                </div>
+
+            </div>
+        </nav>
+
+        <!-- בר משנה (סינון לקוחות) -->
+        <nav class="navbar navbar-expand-lg bg-light border-top border-bottom">
+            <div class="container justify-content-center">
+                <ul class="navbar-nav flex-row gap-3">
+                    <li class="nav-item">
+                        <a class="nav-link category-btn text-success" href="#"
+                            onclick="setNavBtn(this); filterCustomers('admin')">מנהלי מערכת</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link category-btn text-success" href="#"
+                            onclick="setNavBtn(this); filterCustomers('user')">לקוחות רגילים</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link category-btn active fw-bold text-success" href="#"
+                            onclick="setNavBtn(this); filterCustomers('all')">כל הלקוחות</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <main class="container mt-5" dir="rtl">
+        <div class="row">
+            <!-- אזור טבלת הלקוחות (יתמלא דרך JS) -->
+            <div class="col-lg-9">
+                <div class="bg-white rounded-3 shadow-sm p-3">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">שם משתמש</th>
+                                    <th scope="col">אימייל</th>
+                                    <th scope="col">טלפון</th>
+                                    <th scope="col">כתובת למשלוח</th>
+                                    <th scope="col">הרשאה</th>
+                                    <th scope="col" class="text-center">פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customersContainer">
+                                <!-- הלקוחות יוזרקו לכאן -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- פאנל ניהול (מצד שמאל) -->
+            <div class="col-lg-3">
+                <div class="bg-white admin-card shadow-sm rounded-3">
+
+                    <!-- כותרת הפאנל -->
+                    <div class="p-3 border-bottom bg-light rounded-top">
+                        <div class="fw-bold fs-5 text-dark d-flex align-items-center gap-2">
+                            <i class="bi bi-people-fill text-primary"></i> פאנל לקוחות
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4 d-flex flex-column gap-3">
+                        <p class="small text-muted mb-2">
+                            כאן תוכל לצפות בכל המשתמשים הרשומים לאתר, לערוך את פרטיהם או להעניק הרשאות ניהול.
+                        </p>
+
+                        <!-- כפתור הוספת לקוח (אופציונלי למנהל) -->
+                        <button class="btn btn-success w-100 rounded-3 fw-semibold shadow-sm"
+                            onclick="openAddCustomerModal()">
+                            <i class="bi bi-person-plus-fill me-2"></i> הוסף לקוח ידנית
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- חלון קופץ (Modal) לעריכת לקוח -->
+    <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true" dir="rtl">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalTitle">עריכת פרטי לקוח</h5>
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="customerForm" onsubmit="saveCustomer(event)">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label for="customerName" class="form-label">שם מלא</label>
+                                <input type="text" class="form-control" id="customerName" required>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label for="customerPhone" class="form-label">טלפון</label>
+                                <input type="tel" class="form-control" id="customerPhone" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="customerEmail" class="form-label">כתובת אימייל (לזיהוי)</label>
+                            <input type="email" class="form-control" id="customerEmail" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="customerAddress" class="form-label">כתובת למשלוח</label>
+                            <input type="text" class="form-control" id="customerAddress"
+                                placeholder="לדוגמה: הרצל 15, תל אביב" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="customerRole" class="form-label">סוג הרשאה</label>
+                            <select class="form-select" id="customerRole" required>
+                                <option value="user">לקוח רגיל</option>
+                                <option value="admin">מנהל מערכת</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ביטול</button>
+                        <button type="submit" class="btn btn-success">שמור שינויים</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- פוטר (זהה לחלוטין לקודם) -->
+    <footer class="mt-5 footer-main">
+        <div class="container py-4">
+            <div class="row text-center text-md-end align-items-start">
+                <div class="col-md-4 mb-4 footer-contact-col">
+                    <h6 class="fw-bold mb-3 text-accent">יצירת קשר</h6>
+                    <div class="d-flex flex-column gap-2 small">
+                        <div>משק 46, ברכיה <i class="bi bi-geo-fill ms-2 text-accent"></i></div>
+                        <div>055-2652245 <i class="bi bi-telephone-fill ms-2 text-accent"></i></div>
+                        <div>info@ayelet.co.il <i class="bi bi-envelope-fill ms-2 text-accent"></i></div>
+                    </div>
+                </div>
+                <div
+                    class="col-md-8 mb-4 d-flex align-items-center justify-content-md-end justify-content-center gap-3">
+                    <div class="text-md-end text-center">
+                        <span class="fw-bold fs-5 d-block">איילת השדה</span>
+                        <p class="small mt-1 text-white mb-0">מערכת הניהול המרכזית.</p>
+                    </div>
+                    <img src="/image/logo.png" class="rounded-circle border border-white footer-logo-img"
+                        style="width:60px;">
+                </div>
+            </div>
+            <hr class="border-light my-3">
+            <div class="text-center small">© 2026 איילת השדה</div>
+        </div>
+    </footer>
+
+    <script src="../JS/customersManage.js"></script>
+</body>
+
+</html>

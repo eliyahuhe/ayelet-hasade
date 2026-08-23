@@ -17,15 +17,24 @@ async function login(event) {
 
         if (response.ok) {
             localStorage.setItem('username', user);
+            // שמירת השם הפרטי שהתקבל מהשרת
+            if (data.firstName) {
+                localStorage.setItem('name', data.firstName);
+            }
 
-            // --- שינוי: הפיכת העגלה מ-MongoDB למבנה המקומי והחלפת ה-localStorage ---
+            // הפיכת העגלה מ-MongoDB למבנה המקומי והחלפת ה-localStorage
             const dbCart = (data.cart || []).map(item => ({
                 id: item.productId,
                 quantity: item.quantity
             }));
             localStorage.setItem('products', JSON.stringify(dbCart));
 
-            window.location.href = 'html/shop.html';
+            // בדיקת תפקיד והפנייה בהתאם
+            if (data.role === 'admin') {
+                window.location.href = '/html/admin.html';
+            } else {
+                window.location.href = '/html/shop.html';
+            }
         } else {
             alert(data.message || 'שם משתמש או סיסמה שגויים');
         }
@@ -61,10 +70,28 @@ setInterval(updateTime, 1000);
 updateTime();
 fetchWeather();
 
-// כניסת אורח - ניקוי עגלה ושם משתמש
+// כניסת אורח - ניקוי עגלה, שם משתמש ועוגיית תפקיד
 function guestLogin() {
     console.log("התחברות כאורח");
     localStorage.clear();
     document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     window.location.href = '/html/shop.html';
+}
+
+function togglePass(inputId = 'password', iconId = 'togglePassword') {
+    const passInput = document.getElementById(inputId);
+    const toggleIcon = document.getElementById(iconId);
+
+    if (!passInput || !toggleIcon) return;
+
+    if (passInput.type === 'password') {
+        passInput.type = 'text';
+        toggleIcon.classList.remove('bi-eye-slash');
+        toggleIcon.classList.add('bi-eye');
+    } else {
+        passInput.type = 'password';
+        toggleIcon.classList.remove('bi-eye');
+        toggleIcon.classList.add('bi-eye-slash');
+    }
 }
