@@ -121,3 +121,8 @@ function togglePass(inputId = 'password', iconId = 'togglePassword') {
         toggleIcon.classList.add('bi-eye-slash');
     }
 }
+// ניקוי אוטומטי של כל הטפסים בעמוד כשחוזרים אליו עם כפתור "אחורה"
+window.addEventListener('pageshow', function () {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => form.reset());
+});
