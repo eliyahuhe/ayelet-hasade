@@ -333,10 +333,11 @@ if (paymentForm) {
 }
 
 window.renderCart = showCart;
-
 showCart();
 
-// מזהי מאגרים פתוחים (API ממשלתי)
+// ==========================================
+// API ממשלתי לערים ורחובות
+// ==========================================
 const CITY_RESOURCE_ID = '5c78e9fa-c2e2-4771-93ff-7f400a12f7ba';
 const STREET_RESOURCE_ID = '9ad3862c-8391-4b2f-84a4-2d4c68625f4b';
 
@@ -345,10 +346,8 @@ const cityList = document.getElementById('cityList');
 const streetInput = document.getElementById('streetName');
 const streetList = document.getElementById('streetList');
 
-// השלמת עיר
 cityInput.addEventListener('input', async (e) => {
   const query = e.target.value.trim();
-
   if (query.length < 2) {
     cityList.innerHTML = '';
     streetInput.disabled = true;
@@ -356,12 +355,10 @@ cityInput.addEventListener('input', async (e) => {
     streetInput.value = '';
     return;
   }
-
   try {
     const url = `https://data.gov.il/api/3/action/datastore_search?resource_id=${CITY_RESOURCE_ID}&q=${encodeURIComponent(query)}&limit=15`;
     const res = await fetch(url);
     const data = await res.json();
-
     cityList.innerHTML = '';
     if (data.result && data.result.records) {
       data.result.records.forEach(record => {
@@ -371,12 +368,9 @@ cityInput.addEventListener('input', async (e) => {
         cityList.appendChild(option);
       });
     }
-  } catch (err) {
-    console.error("שגיאה במשיכת עיר:", err);
-  }
+  } catch (err) { console.error("שגיאה:", err); }
 });
 
-// פתיחת שדה הרחוב ברגע שנבחרה עיר (שינוי ערך)
 cityInput.addEventListener('change', () => {
   if (cityInput.value.trim().length > 0) {
     streetInput.disabled = false;
@@ -385,31 +379,23 @@ cityInput.addEventListener('change', () => {
   }
 });
 
-// השלמת רחוב
 streetInput.addEventListener('input', async (e) => {
   const streetQuery = e.target.value.trim();
   const selectedCity = cityInput.value.trim();
-
   if (streetQuery.length < 1 || !selectedCity) {
     streetList.innerHTML = '';
     return;
   }
-
   try {
-    // חיפוש חופשי שמשלב את שם הרחוב והעיר יחד
     const fullQuery = `${streetQuery} ${selectedCity}`;
     const url = `https://data.gov.il/api/3/action/datastore_search?resource_id=${STREET_RESOURCE_ID}&q=${encodeURIComponent(fullQuery)}&limit=15`;
-
     const res = await fetch(url);
     const data = await res.json();
-
     streetList.innerHTML = '';
     if (data.result && data.result.records) {
       data.result.records.forEach(record => {
         const streetName = (record['שם_רחוב'] || record['שם רחוב']).trim();
         const recordCity = (record['שם_ישוב'] || record['שם ישוב'] || '').trim();
-
-        // מוודא שהרחוב שייך לעיר שנבחרה
         if (recordCity.includes(selectedCity) || selectedCity.includes(recordCity)) {
           const option = document.createElement('option');
           option.value = streetName;
@@ -417,9 +403,7 @@ streetInput.addEventListener('input', async (e) => {
         }
       });
     }
-  } catch (err) {
-    console.error("שגיאה במשיכת רחוב:", err);
-  }
+  } catch (err) { console.error("שגיאה:", err); }
 });
 document.addEventListener("DOMContentLoaded", async function () {
   checkGuestStatus();
